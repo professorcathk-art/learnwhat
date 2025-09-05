@@ -933,17 +933,38 @@ Return only the JSON array, no additional text.`;
         dailyPlan.forEach((material, index) => {
             const row = document.createElement('tr');
             row.className = material.completed ? 'completed-row' : '';
-            row.innerHTML = `
-                <td class="day-cell">Day ${material.day}</td>
-                <td class="material-cell">
+            
+            // Create material cell content based on whether it's a rest day
+            let materialCellContent;
+            if (material.isRestDay) {
+                // Rest day - no link
+                materialCellContent = `
+                    <div class="material-title">${material.title}</div>
+                    ${material.description ? `<div class="material-description">${material.description}</div>` : ''}
+                `;
+            } else {
+                // Regular material - with link
+                materialCellContent = `
                     <a href="${material.url}" target="_blank" class="material-link">
                         ${material.title}
                         <i class="fas fa-external-link-alt"></i>
                     </a>
-                    ${material.description ? `<div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">${material.description}</div>` : ''}
+                    ${material.description ? `<div class="material-description">${material.description}</div>` : ''}
+                    <div class="material-preview">
+                        <button class="preview-btn" onclick="app.showMaterialPreview(${index})">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                    </div>
+                `;
+            }
+            
+            row.innerHTML = `
+                <td class="day-cell">Day ${material.day}</td>
+                <td class="material-cell">
+                    ${materialCellContent}
                 </td>
                 <td class="type-cell">
-                    <span class="type-badge">${material.type}</span>
+                    <span class="type-badge ${material.isRestDay ? 'rest-day-badge' : ''}">${material.type}</span>
                 </td>
                 <td class="duration-cell">${material.duration}</td>
                 <td class="status-cell">
@@ -975,6 +996,74 @@ Return only the JSON array, no additional text.`;
             // Save to localStorage
             localStorage.setItem('learnwhat-daily-plan', JSON.stringify(this.dailyPlan));
         }
+    }
+
+    showMaterialPreview(index) {
+        if (!this.dailyPlan || !this.dailyPlan[index]) return;
+        
+        const material = this.dailyPlan[index];
+        
+        // Create preview modal
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content preview-modal">
+                <div class="modal-header">
+                    <h2>Material Preview</h2>
+                    <button class="modal-close" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="preview-content">
+                        <div class="preview-header">
+                            <h3>${material.title}</h3>
+                            <div class="preview-meta">
+                                <span class="type-badge">${material.type}</span>
+                                <span class="duration-badge">${material.duration}</span>
+                            </div>
+                        </div>
+                        <div class="preview-description">
+                            <h4>Description</h4>
+                            <p>${material.description || 'No description available.'}</p>
+                        </div>
+                        <div class="preview-details">
+                            <h4>Learning Details</h4>
+                            <ul>
+                                <li><strong>Day:</strong> Day ${material.day}</li>
+                                <li><strong>Type:</strong> ${material.type}</li>
+                                <li><strong>Duration:</strong> ${material.duration}</li>
+                                <li><strong>Difficulty:</strong> ${this.generateDifficultyStars(material.difficulty || 3)}</li>
+                            </ul>
+                        </div>
+                        <div class="preview-actions">
+                            <a href="${material.url}" target="_blank" class="btn-primary">
+                                <i class="fas fa-external-link-alt"></i> Access Material
+                            </a>
+                            <button class="btn-secondary" onclick="this.closest('.modal').remove()">
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    generateDifficultyStars(difficulty) {
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+            const isActive = i <= difficulty;
+            stars.push(`<span class="difficulty-star ${isActive ? 'active' : ''}">★</span>`);
+        }
+        return stars.join('');
     }
 
     showRegistrationModal() {
@@ -1099,9 +1188,12 @@ Return only the JSON array, no additional text.`;
                     <tr class="${material.completed ? 'completed-row' : ''}">
                         <td>Day ${material.day}</td>
                         <td>
-                            <a href="${material.url}" target="_blank" class="material-link">
-                                ${material.title}
-                            </a>
+                            ${material.isRestDay ? 
+                                `<div class="material-title">${material.title}</div>` :
+                                `<a href="${material.url}" target="_blank" class="material-link">
+                                    ${material.title}
+                                </a>`
+                            }
                         </td>
                         <td>
                             <input type="checkbox" class="status-checkbox" ${material.completed ? 'checked' : ''} 
