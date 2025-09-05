@@ -64,6 +64,10 @@ class LearnWhatApp {
             this.showRegistrationModal();
         });
 
+        document.getElementById('regenerateMaterials').addEventListener('click', () => {
+            this.generateLearningMaterials();
+        });
+
         // Form events
         document.querySelectorAll('input[name="level"], input[name="purpose"], input[name="duration"], input[name="intensity"]').forEach(input => {
             input.addEventListener('change', () => {
@@ -269,6 +273,562 @@ class LearnWhatApp {
         return titles[item - 1] || `Complete learning milestone ${item}`;
     }
 
+    async generateLearningMaterials() {
+        const materialsGrid = document.getElementById('materialsGrid');
+        materialsGrid.innerHTML = '<div class="loading-materials"><i class="fas fa-spinner fa-spin"></i> Generating personalized learning materials with AI...</div>';
+        
+        try {
+            // First, get fallback materials
+            const fallbackMaterials = this.getRecommendedMaterials();
+            
+            // Try to get AI-generated materials
+            const aiMaterials = await this.getAIGeneratedMaterials();
+            
+            // Combine AI materials with fallback materials
+            const allMaterials = [...aiMaterials, ...fallbackMaterials].slice(0, 8);
+            
+            materialsGrid.innerHTML = '';
+            
+            allMaterials.forEach(material => {
+                const materialCard = document.createElement('div');
+                materialCard.className = 'material-card';
+                materialCard.innerHTML = `
+                    <div class="material-header">
+                        <div class="material-icon">
+                            <i class="${material.icon}"></i>
+                        </div>
+                        <div class="material-info">
+                            <h4>${material.title}</h4>
+                            <div class="material-type">${material.type} ${material.aiGenerated ? '<span class="ai-badge">AI Recommended</span>' : ''}</div>
+                        </div>
+                    </div>
+                    <div class="material-description">
+                        ${material.description}
+                    </div>
+                    <div class="material-meta">
+                        <span class="material-duration">${material.duration}</span>
+                        <div class="material-difficulty">
+                            ${this.generateDifficultyDots(material.difficulty)}
+                        </div>
+                    </div>
+                    <a href="${material.url}" target="_blank" class="material-link">
+                        Access Resource <i class="fas fa-external-link-alt"></i>
+                    </a>
+                `;
+                materialsGrid.appendChild(materialCard);
+            });
+        } catch (error) {
+            console.error('Error generating AI materials:', error);
+            // Fallback to static materials
+            const fallbackMaterials = this.getRecommendedMaterials();
+            materialsGrid.innerHTML = '';
+            
+            fallbackMaterials.forEach(material => {
+                const materialCard = document.createElement('div');
+                materialCard.className = 'material-card';
+                materialCard.innerHTML = `
+                    <div class="material-header">
+                        <div class="material-icon">
+                            <i class="${material.icon}"></i>
+                        </div>
+                        <div class="material-info">
+                            <h4>${material.title}</h4>
+                            <div class="material-type">${material.type}</div>
+                        </div>
+                    </div>
+                    <div class="material-description">
+                        ${material.description}
+                    </div>
+                    <div class="material-meta">
+                        <span class="material-duration">${material.duration}</span>
+                        <div class="material-difficulty">
+                            ${this.generateDifficultyDots(material.difficulty)}
+                        </div>
+                    </div>
+                    <a href="${material.url}" target="_blank" class="material-link">
+                        Access Resource <i class="fas fa-external-link-alt"></i>
+                    </a>
+                `;
+                materialsGrid.appendChild(materialCard);
+            });
+        }
+    }
+
+    generateDifficultyDots(difficulty) {
+        const dots = [];
+        for (let i = 1; i <= 5; i++) {
+            const isActive = i <= difficulty;
+            dots.push(`<span class="difficulty-dot ${isActive ? 'active' : ''}"></span>`);
+        }
+        return dots.join('');
+    }
+
+    async getAIGeneratedMaterials() {
+        const prompt = this.createMaterialsPrompt();
+        
+        try {
+            const response = await fetch('https://api.aimlapi.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ce74038095d6469184af3b39e3eca7b3'
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'You are an expert learning advisor. Generate personalized learning materials based on user preferences. Return a JSON array of 4-6 learning materials with the following structure: [{"title": "Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://example.com", "icon": "fas fa-icon-class"}]'
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    max_tokens: 2000,
+                    temperature: 0.7
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const content = data.choices[0].message.content;
+            
+            // Parse the JSON response
+            const materials = JSON.parse(content);
+            
+            // Add AI generated flag and ensure proper structure
+            return materials.map(material => ({
+                ...material,
+                aiGenerated: true,
+                levels: ['all'], // AI materials are generally suitable for all levels
+                category: this.mapTypeToCategory(material.type)
+            }));
+            
+        } catch (error) {
+            console.error('Error calling AI API:', error);
+            return [];
+        }
+    }
+
+    createMaterialsPrompt() {
+        const { topic, level, purpose, duration, intensity, materials } = this.learningPlan;
+        
+        return `Generate personalized learning materials for someone who wants to learn "${topic}" at a "${level}" level. 
+
+User Details:
+- Topic: ${topic}
+- Level: ${level}
+- Purpose: ${purpose}
+- Duration: ${duration} days
+- Intensity: ${intensity}
+- Preferred Material Types: ${materials.join(', ')}
+
+Please recommend 4-6 high-quality learning resources that match their preferences. Include a mix of:
+- Online courses or tutorials
+- Books or articles
+- Hands-on projects or exercises
+- Video content or interactive resources
+
+Make sure the recommendations are:
+1. Appropriate for their skill level
+2. Match their learning purpose
+3. Fit their time commitment
+4. Include the material types they prefer
+5. Are from reputable sources
+
+Return only the JSON array, no additional text.`;
+    }
+
+    mapTypeToCategory(type) {
+        const typeMapping = {
+            'Course': 'online-courses',
+            'Book': 'books',
+            'Video': 'youtube-tutorials',
+            'Article': 'articles',
+            'Project': 'projects',
+            'Exercise': 'exercises',
+            'Tutorial': 'youtube-tutorials',
+            'Guide': 'articles',
+            'Resource': 'articles'
+        };
+        
+        return typeMapping[type] || 'articles';
+    }
+
+    getRecommendedMaterials() {
+        const topic = this.learningPlan.topic.toLowerCase();
+        const level = this.learningPlan.level;
+        const purpose = this.learningPlan.purpose;
+        const materials = this.learningPlan.materials;
+        
+        // Get base materials for the topic
+        let baseMaterials = this.getMaterialsByTopic(topic);
+        
+        // Filter by level
+        baseMaterials = baseMaterials.filter(material => 
+            material.levels.includes(level) || material.levels.includes('all')
+        );
+        
+        // Filter by selected material types
+        baseMaterials = baseMaterials.filter(material => 
+            materials.includes(material.category)
+        );
+        
+        // Sort by relevance and return top 6-8 materials
+        return baseMaterials.slice(0, 8);
+    }
+
+    getMaterialsByTopic(topic) {
+        const materialsDatabase = {
+            'ai': [
+                {
+                    title: "Machine Learning Course by Andrew Ng",
+                    type: "Online Course",
+                    category: "online-courses",
+                    description: "Comprehensive introduction to machine learning covering supervised and unsupervised learning, neural networks, and practical applications.",
+                    duration: "11 weeks",
+                    difficulty: 3,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.coursera.org/learn/machine-learning"
+                },
+                {
+                    title: "Deep Learning Specialization",
+                    type: "Online Course",
+                    category: "online-courses",
+                    description: "Advanced course covering deep learning, neural networks, and their applications in computer vision and NLP.",
+                    duration: "5 months",
+                    difficulty: 4,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-brain",
+                    url: "https://www.coursera.org/specializations/deep-learning"
+                },
+                {
+                    title: "Python for Data Science Handbook",
+                    type: "Book",
+                    category: "books",
+                    description: "Essential guide to Python libraries for data science including NumPy, Pandas, Matplotlib, and Scikit-learn.",
+                    duration: "2-3 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-book",
+                    url: "https://jakevdp.github.io/PythonDataScienceHandbook/"
+                },
+                {
+                    title: "Hands-On Machine Learning",
+                    type: "Book",
+                    category: "books",
+                    description: "Practical guide to machine learning with TensorFlow and Scikit-learn, featuring real-world projects.",
+                    duration: "4-6 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.oreilly.com/library/view/hands-on-machine-learning/9781492032632/"
+                },
+                {
+                    title: "3Blue1Brown Neural Networks",
+                    type: "YouTube Series",
+                    category: "youtube-tutorials",
+                    description: "Beautifully animated explanations of neural networks, backpropagation, and deep learning concepts.",
+                    duration: "2 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi"
+                },
+                {
+                    title: "Kaggle Learn Micro-Courses",
+                    type: "Interactive Tutorials",
+                    category: "exercises",
+                    description: "Free micro-courses covering machine learning, data visualization, and feature engineering.",
+                    duration: "1-2 weeks each",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-trophy",
+                    url: "https://www.kaggle.com/learn"
+                }
+            ],
+            'web development': [
+                {
+                    title: "The Complete Web Developer Course",
+                    type: "Online Course",
+                    category: "online-courses",
+                    description: "Comprehensive course covering HTML, CSS, JavaScript, React, Node.js, and full-stack development.",
+                    duration: "6 months",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-code",
+                    url: "https://www.udemy.com/course/the-complete-web-developer-course-2/"
+                },
+                {
+                    title: "Eloquent JavaScript",
+                    type: "Book",
+                    category: "books",
+                    description: "Modern introduction to JavaScript programming with practical examples and exercises.",
+                    duration: "3-4 weeks",
+                    difficulty: 3,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-book",
+                    url: "https://eloquentjavascript.net/"
+                },
+                {
+                    title: "React Documentation",
+                    type: "Official Documentation",
+                    category: "articles",
+                    description: "Official React documentation with tutorials, guides, and API reference.",
+                    duration: "2-3 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fab fa-react",
+                    url: "https://react.dev/"
+                },
+                {
+                    title: "Traversy Media Web Dev Tutorials",
+                    type: "YouTube Channel",
+                    category: "youtube-tutorials",
+                    description: "High-quality web development tutorials covering modern technologies and best practices.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/c/TraversyMedia"
+                },
+                {
+                    title: "Build a Portfolio Website",
+                    type: "Project",
+                    category: "projects",
+                    description: "Hands-on project to build a responsive portfolio website using HTML, CSS, and JavaScript.",
+                    duration: "1-2 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-laptop-code",
+                    url: "#"
+                }
+            ],
+            'investment': [
+                {
+                    title: "The Intelligent Investor",
+                    type: "Book",
+                    category: "books",
+                    description: "Classic guide to value investing by Benjamin Graham, the father of value investing.",
+                    duration: "2-3 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Intelligent-Investor-Definitive-Investing-Essentials/dp/0060555661"
+                },
+                {
+                    title: "A Random Walk Down Wall Street",
+                    type: "Book",
+                    category: "books",
+                    description: "Comprehensive guide to investing covering different strategies and market theories.",
+                    duration: "2-3 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Random-Walk-Down-Wall-Street/dp/0393358380"
+                },
+                {
+                    title: "Investopedia Academy",
+                    type: "Online Course",
+                    category: "online-courses",
+                    description: "Professional investment courses covering stocks, bonds, options, and portfolio management.",
+                    duration: "4-8 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-chart-line",
+                    url: "https://academy.investopedia.com/"
+                },
+                {
+                    title: "The Plain Bagel Finance",
+                    type: "YouTube Channel",
+                    category: "youtube-tutorials",
+                    description: "Educational finance content covering investing, economics, and personal finance topics.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/c/ThePlainBagel"
+                },
+                {
+                    title: "Paper Trading Simulator",
+                    type: "Practice Tool",
+                    category: "exercises",
+                    description: "Practice investing with virtual money using real market data and conditions.",
+                    duration: "Ongoing",
+                    difficulty: 1,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-chart-bar",
+                    url: "https://www.investopedia.com/simulator/"
+                }
+            ],
+            'spiritual growth': [
+                {
+                    title: "The Power of Now",
+                    type: "Book",
+                    category: "books",
+                    description: "Spiritual guide to living in the present moment and finding inner peace.",
+                    duration: "2-3 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Power-Now-Guide-Spiritual-Enlightenment/dp/1577314808"
+                },
+                {
+                    title: "Mindfulness-Based Stress Reduction",
+                    type: "Online Course",
+                    category: "online-courses",
+                    description: "Evidence-based program for reducing stress and improving well-being through mindfulness.",
+                    duration: "8 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-leaf",
+                    url: "https://www.umassmed.edu/cfm/mindfulness-based-programs/mbsr-courses/"
+                },
+                {
+                    title: "Headspace Meditation App",
+                    type: "Mobile App",
+                    category: "exercises",
+                    description: "Guided meditation and mindfulness exercises for daily practice.",
+                    duration: "Daily",
+                    difficulty: 1,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-mobile-alt",
+                    url: "https://www.headspace.com/"
+                },
+                {
+                    title: "Tara Brach Podcast",
+                    type: "Podcast",
+                    category: "youtube-tutorials",
+                    description: "Weekly talks on meditation, spiritual awakening, and compassionate awareness.",
+                    duration: "Weekly",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-podcast",
+                    url: "https://www.tarabrach.com/talks/"
+                }
+            ],
+            'language learning': [
+                {
+                    title: "Duolingo",
+                    type: "Language App",
+                    category: "exercises",
+                    description: "Gamified language learning platform with bite-sized lessons and progress tracking.",
+                    duration: "Daily",
+                    difficulty: 1,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-mobile-alt",
+                    url: "https://www.duolingo.com/"
+                },
+                {
+                    title: "FluentU",
+                    type: "Online Course",
+                    category: "online-courses",
+                    description: "Learn languages through real-world videos with interactive subtitles and quizzes.",
+                    duration: "3-6 months",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-video",
+                    url: "https://www.fluentu.com/"
+                },
+                {
+                    title: "HelloTalk",
+                    type: "Language Exchange",
+                    category: "study-groups",
+                    description: "Connect with native speakers for language exchange and conversation practice.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-users",
+                    url: "https://www.hellotalk.com/"
+                },
+                {
+                    title: "Anki Flashcards",
+                    type: "Spaced Repetition",
+                    category: "exercises",
+                    description: "Digital flashcards with spaced repetition algorithm for efficient vocabulary learning.",
+                    duration: "Daily",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fas fa-brain",
+                    url: "https://apps.ankiweb.net/"
+                }
+            ],
+            'career development': [
+                {
+                    title: "LinkedIn Learning",
+                    type: "Online Course",
+                    category: "online-courses",
+                    description: "Professional development courses covering business skills, technology, and creative topics.",
+                    duration: "1-4 weeks per course",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fab fa-linkedin",
+                    url: "https://www.linkedin.com/learning/"
+                },
+                {
+                    title: "The Lean Startup",
+                    type: "Book",
+                    category: "books",
+                    description: "Guide to building successful startups through validated learning and rapid iteration.",
+                    duration: "2-3 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Lean-Startup-Entrepreneurs-Continuous-Innovation/dp/0307887898"
+                },
+                {
+                    title: "Harvard Business Review",
+                    type: "Articles",
+                    category: "articles",
+                    description: "Leading business publication with insights on management, strategy, and leadership.",
+                    duration: "Weekly",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-newspaper",
+                    url: "https://hbr.org/"
+                },
+                {
+                    title: "Mentorship Program",
+                    type: "1-on-1 Coaching",
+                    category: "coaching",
+                    description: "Connect with industry professionals for career guidance and skill development.",
+                    duration: "3-6 months",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-user-tie",
+                    url: "#"
+                }
+            ]
+        };
+        
+        // Find matching materials based on topic keywords
+        for (const [key, materials] of Object.entries(materialsDatabase)) {
+            if (topic.includes(key) || key.includes(topic)) {
+                return materials;
+            }
+        }
+        
+        // Default materials if no specific match
+        return [
+            {
+                title: "General Learning Resources",
+                type: "Mixed Content",
+                category: "all",
+                description: "Curated collection of high-quality learning resources for your chosen topic.",
+                duration: "Varies",
+                difficulty: 2,
+                levels: ["all"],
+                icon: "fas fa-graduation-cap",
+                url: "#"
+            }
+        ];
+    }
+
     updatePlanPreview() {
         if (!this.learningPlan) return;
         
@@ -292,6 +852,9 @@ class LearnWhatApp {
             `;
             timelineContent.appendChild(timelineItem);
         });
+        
+        // Generate and display learning materials
+        this.generateLearningMaterials();
     }
 
     showRegistrationModal() {
