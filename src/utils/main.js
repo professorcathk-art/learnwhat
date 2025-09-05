@@ -432,6 +432,15 @@ Please recommend 4-6 high-quality learning resources that match their preference
 - Books or articles
 - Hands-on projects or exercises
 - Video content or interactive resources
+- Mobile apps or tools
+
+For each recommendation, include:
+- Title and type
+- Brief description
+- Estimated duration
+- Difficulty level (1-5)
+- Cost information (Free, Paid (~$X), or Free (Audit))
+- Relevant URL if available
 
 Make sure the recommendations are:
 1. Appropriate for their skill level
@@ -439,6 +448,7 @@ Make sure the recommendations are:
 3. Fit their time commitment
 4. Include the material types they prefer
 5. Are from reputable sources
+6. Include both free and paid options when relevant
 
 Return only the JSON array, no additional text.`;
     }
@@ -485,55 +495,13 @@ Return only the JSON array, no additional text.`;
     getMaterialsByTopic(topic) {
         const materialsDatabase = {
             'ai': [
+                // FREE MATERIALS
                 {
-                    title: "Machine Learning Course by Andrew Ng",
-                    type: "Online Course",
-                    category: "online-courses",
-                    description: "Comprehensive introduction to machine learning covering supervised and unsupervised learning, neural networks, and practical applications.",
-                    duration: "11 weeks",
-                    difficulty: 3,
-                    levels: ["beginner", "intermediate"],
-                    icon: "fas fa-graduation-cap",
-                    url: "https://www.coursera.org/learn/machine-learning"
-                },
-                {
-                    title: "Deep Learning Specialization",
-                    type: "Online Course",
-                    category: "online-courses",
-                    description: "Advanced course covering deep learning, neural networks, and their applications in computer vision and NLP.",
-                    duration: "5 months",
-                    difficulty: 4,
-                    levels: ["intermediate", "advanced"],
-                    icon: "fas fa-brain",
-                    url: "https://www.coursera.org/specializations/deep-learning"
-                },
-                {
-                    title: "Python for Data Science Handbook",
-                    type: "Book",
-                    category: "books",
-                    description: "Essential guide to Python libraries for data science including NumPy, Pandas, Matplotlib, and Scikit-learn.",
-                    duration: "2-3 weeks",
-                    difficulty: 2,
-                    levels: ["beginner", "intermediate"],
-                    icon: "fas fa-book",
-                    url: "https://jakevdp.github.io/PythonDataScienceHandbook/"
-                },
-                {
-                    title: "Hands-On Machine Learning",
-                    type: "Book",
-                    category: "books",
-                    description: "Practical guide to machine learning with TensorFlow and Scikit-learn, featuring real-world projects.",
-                    duration: "4-6 weeks",
-                    difficulty: 3,
-                    levels: ["intermediate", "advanced"],
-                    icon: "fas fa-book",
-                    url: "https://www.oreilly.com/library/view/hands-on-machine-learning/9781492032632/"
-                },
-                {
-                    title: "3Blue1Brown Neural Networks",
+                    title: "3Blue1Brown - Neural Networks Series",
                     type: "YouTube Series",
                     category: "youtube-tutorials",
-                    description: "Beautifully animated explanations of neural networks, backpropagation, and deep learning concepts.",
+                    cost: "Free",
+                    description: "Beautifully animated explanations of neural networks, backpropagation, and deep learning concepts. Perfect for visual learners.",
                     duration: "2 weeks",
                     difficulty: 2,
                     levels: ["beginner", "intermediate"],
@@ -541,34 +509,220 @@ Return only the JSON array, no additional text.`;
                     url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi"
                 },
                 {
+                    title: "Machine Learning Course by Andrew Ng (Coursera)",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free (Audit)",
+                    description: "Stanford's comprehensive introduction to machine learning covering supervised and unsupervised learning, neural networks, and practical applications.",
+                    duration: "11 weeks",
+                    difficulty: 3,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.coursera.org/learn/machine-learning"
+                },
+                {
+                    title: "fast.ai - Practical Deep Learning for Coders",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free",
+                    description: "Complete free course focusing on practical deep learning applications. Top-down approach starting with real projects.",
+                    duration: "8 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-brain",
+                    url: "https://course.fast.ai/"
+                },
+                {
+                    title: "Python for Data Science Handbook",
+                    type: "Free Book",
+                    category: "books",
+                    cost: "Free",
+                    description: "Essential guide to Python libraries for data science including NumPy, Pandas, Matplotlib, and Scikit-learn. Available as free Jupyter notebooks.",
+                    duration: "2-3 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-book",
+                    url: "https://jakevdp.github.io/PythonDataScienceHandbook/"
+                },
+                {
                     title: "Kaggle Learn Micro-Courses",
                     type: "Interactive Tutorials",
                     category: "exercises",
-                    description: "Free micro-courses covering machine learning, data visualization, and feature engineering.",
+                    cost: "Free",
+                    description: "Free micro-courses covering machine learning, data visualization, feature engineering, and deep learning with hands-on exercises.",
                     duration: "1-2 weeks each",
                     difficulty: 2,
                     levels: ["beginner", "intermediate"],
                     icon: "fas fa-trophy",
                     url: "https://www.kaggle.com/learn"
+                },
+                {
+                    title: "Google AI Education - ML Crash Course",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free",
+                    description: "Google's comprehensive machine learning crash course with practical exercises and real-world examples.",
+                    duration: "3-4 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://developers.google.com/machine-learning/crash-course"
+                },
+                {
+                    title: "MIT 6.034 Artificial Intelligence",
+                    type: "YouTube Course",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Complete MIT course on artificial intelligence with Patrick Winston. Covers search, knowledge representation, and machine learning.",
+                    duration: "4-5 weeks",
+                    difficulty: 4,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/playlist?list=PLUl4u3cNGP63gFHB6xb-kVBiQHYe_4hSi"
+                },
+                {
+                    title: "Two Minute Papers",
+                    type: "YouTube Channel",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Latest AI research papers explained in simple terms. Great for staying updated with cutting-edge developments.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/c/TwoMinutePapers"
+                },
+                {
+                    title: "The Elements of Statistical Learning",
+                    type: "Free Book",
+                    category: "books",
+                    cost: "Free",
+                    description: "Comprehensive textbook on statistical learning methods. Available as free PDF from Stanford. Essential for understanding ML theory.",
+                    duration: "6-8 weeks",
+                    difficulty: 4,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://web.stanford.edu/~hastie/ElemStatLearn/"
+                },
+                {
+                    title: "PyTorch Official Tutorials",
+                    type: "Video Tutorials",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Official PyTorch tutorials covering deep learning fundamentals, computer vision, and natural language processing.",
+                    duration: "2-3 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/c/PyTorchDeveloper"
+                },
+                
+                // PAID MATERIALS
+                {
+                    title: "Deep Learning Specialization (Coursera)",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Paid ($49/month)",
+                    description: "Comprehensive deep learning specialization by Andrew Ng covering neural networks, CNNs, RNNs, and sequence models.",
+                    duration: "5 months",
+                    difficulty: 4,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-brain",
+                    url: "https://www.coursera.org/specializations/deep-learning"
+                },
+                {
+                    title: "Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$50)",
+                    description: "Best-selling practical guide to machine learning with real-world projects. Available on Amazon and bookstores.",
+                    duration: "4-6 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Hands-Machine-Learning-Scikit-Learn-TensorFlow/dp/1492032646"
+                },
+                {
+                    title: "Pattern Recognition and Machine Learning",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$80)",
+                    description: "Christopher Bishop's comprehensive textbook on pattern recognition and machine learning. Essential for understanding ML theory.",
+                    duration: "8-10 weeks",
+                    difficulty: 5,
+                    levels: ["advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Pattern-Recognition-Learning-Information-Statistics/dp/0387310738"
+                },
+                {
+                    title: "Deep Learning (Goodfellow, Bengio, Courville)",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$70)",
+                    description: "The definitive textbook on deep learning. Covers mathematical foundations and modern techniques.",
+                    duration: "10-12 weeks",
+                    difficulty: 5,
+                    levels: ["advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Deep-Learning-Ian-Goodfellow/dp/0262035618"
+                },
+                {
+                    title: "CS231n: Convolutional Neural Networks (Stanford)",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free (with paid certificate)",
+                    description: "Stanford's computer vision course covering CNNs, object detection, and image classification. Free lectures, paid certificate.",
+                    duration: "3-4 weeks",
+                    difficulty: 4,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-graduation-cap",
+                    url: "http://cs231n.stanford.edu/"
+                },
+                {
+                    title: "Machine Learning Yearning by Andrew Ng",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$30)",
+                    description: "Practical guide to machine learning project management and best practices. Available as ebook and print.",
+                    duration: "2-3 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Machine-Learning-Yearning-Andrew-Ng/dp/1732261758"
                 }
             ],
             'web development': [
+                // FREE MATERIALS
                 {
-                    title: "The Complete Web Developer Course",
+                    title: "freeCodeCamp - Full Stack Web Development",
                     type: "Online Course",
                     category: "online-courses",
-                    description: "Comprehensive course covering HTML, CSS, JavaScript, React, Node.js, and full-stack development.",
-                    duration: "6 months",
+                    cost: "Free",
+                    description: "Complete free curriculum covering HTML, CSS, JavaScript, React, Node.js, and databases. Includes hands-on projects and certifications.",
+                    duration: "6-12 months",
                     difficulty: 2,
                     levels: ["beginner", "intermediate"],
                     icon: "fas fa-code",
-                    url: "https://www.udemy.com/course/the-complete-web-developer-course-2/"
+                    url: "https://www.freecodecamp.org/"
+                },
+                {
+                    title: "The Odin Project",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free",
+                    description: "Open-source curriculum for learning full-stack web development. Covers Ruby on Rails, JavaScript, and modern frameworks.",
+                    duration: "6-12 months",
+                    difficulty: 3,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.theodinproject.com/"
                 },
                 {
                     title: "Eloquent JavaScript",
-                    type: "Book",
+                    type: "Free Book",
                     category: "books",
-                    description: "Modern introduction to JavaScript programming with practical examples and exercises.",
+                    cost: "Free",
+                    description: "Modern introduction to JavaScript programming with practical examples and exercises. Available free online.",
                     duration: "3-4 weeks",
                     difficulty: 3,
                     levels: ["beginner", "intermediate"],
@@ -576,21 +730,11 @@ Return only the JSON array, no additional text.`;
                     url: "https://eloquentjavascript.net/"
                 },
                 {
-                    title: "React Documentation",
-                    type: "Official Documentation",
-                    category: "articles",
-                    description: "Official React documentation with tutorials, guides, and API reference.",
-                    duration: "2-3 weeks",
-                    difficulty: 2,
-                    levels: ["beginner", "intermediate"],
-                    icon: "fab fa-react",
-                    url: "https://react.dev/"
-                },
-                {
                     title: "Traversy Media Web Dev Tutorials",
                     type: "YouTube Channel",
                     category: "youtube-tutorials",
-                    description: "High-quality web development tutorials covering modern technologies and best practices.",
+                    cost: "Free",
+                    description: "High-quality web development tutorials covering HTML, CSS, JavaScript, React, Node.js, and modern frameworks.",
                     duration: "Ongoing",
                     difficulty: 2,
                     levels: ["beginner", "intermediate"],
@@ -598,23 +742,210 @@ Return only the JSON array, no additional text.`;
                     url: "https://www.youtube.com/c/TraversyMedia"
                 },
                 {
-                    title: "Build a Portfolio Website",
-                    type: "Project",
-                    category: "projects",
-                    description: "Hands-on project to build a responsive portfolio website using HTML, CSS, and JavaScript.",
-                    duration: "1-2 weeks",
+                    title: "React Documentation & Tutorials",
+                    type: "Official Documentation",
+                    category: "articles",
+                    cost: "Free",
+                    description: "Official React documentation with interactive tutorials, guides, and comprehensive API reference.",
+                    duration: "2-3 weeks",
                     difficulty: 2,
                     levels: ["beginner", "intermediate"],
-                    icon: "fas fa-laptop-code",
-                    url: "#"
+                    icon: "fab fa-react",
+                    url: "https://react.dev/"
+                },
+                {
+                    title: "MDN Web Docs",
+                    type: "Documentation",
+                    category: "articles",
+                    cost: "Free",
+                    description: "Comprehensive documentation for HTML, CSS, and JavaScript. The definitive resource for web developers.",
+                    duration: "Ongoing reference",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://developer.mozilla.org/"
+                },
+                {
+                    title: "JavaScript.info",
+                    type: "Online Tutorial",
+                    category: "articles",
+                    cost: "Free",
+                    description: "Modern JavaScript tutorial covering ES6+, DOM manipulation, async programming, and advanced concepts.",
+                    duration: "4-6 weeks",
+                    difficulty: 3,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-code",
+                    url: "https://javascript.info/"
+                },
+                {
+                    title: "CSS-Tricks",
+                    type: "Articles & Tutorials",
+                    category: "articles",
+                    cost: "Free",
+                    description: "Extensive collection of CSS tutorials, techniques, and modern web development practices.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fas fa-paint-brush",
+                    url: "https://css-tricks.com/"
+                },
+                {
+                    title: "Web.dev by Google",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free",
+                    description: "Google's web development course covering modern practices, performance, accessibility, and PWA development.",
+                    duration: "4-6 weeks",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://web.dev/learn/"
+                },
+                
+                // PAID MATERIALS
+                {
+                    title: "The Complete Web Developer Course (Udemy)",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Paid (~$20-50)",
+                    description: "Comprehensive course covering HTML, CSS, JavaScript, React, Node.js, and full-stack development with projects.",
+                    duration: "6 months",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-code",
+                    url: "https://www.udemy.com/course/the-complete-web-developer-course-2/"
+                },
+                {
+                    title: "You Don't Know JS (Book Series)",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$30-50)",
+                    description: "Deep dive into JavaScript fundamentals. Available as individual books or complete series on Amazon.",
+                    duration: "6-8 weeks",
+                    difficulty: 4,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://github.com/getify/You-Dont-Know-JS"
+                },
+                {
+                    title: "JavaScript: The Good Parts",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$25)",
+                    description: "Classic book by Douglas Crockford on JavaScript best practices and the good parts of the language.",
+                    duration: "2-3 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/JavaScript-Good-Parts-Douglas-Crockford/dp/0596517742"
+                },
+                {
+                    title: "Clean Code: A Handbook of Agile Software Craftsmanship",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$40)",
+                    description: "Essential book on writing clean, maintainable code. Available in bookstores and online.",
+                    duration: "3-4 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882"
                 }
             ],
             'investment': [
+                // FREE MATERIALS
+                {
+                    title: "Investopedia Academy (Free Courses)",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free",
+                    description: "Free investment courses covering stocks, bonds, options, and portfolio management basics.",
+                    duration: "2-4 weeks each",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-chart-line",
+                    url: "https://academy.investopedia.com/"
+                },
+                {
+                    title: "The Plain Bagel Finance",
+                    type: "YouTube Channel",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Educational finance content covering investing, economics, and personal finance topics in simple terms.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/c/ThePlainBagel"
+                },
+                {
+                    title: "Ben Felix - Common Sense Investing",
+                    type: "YouTube Channel",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Evidence-based investing content covering index funds, portfolio theory, and market analysis.",
+                    duration: "Ongoing",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/c/BenFelixCSI"
+                },
+                {
+                    title: "Paper Trading Simulator (Investopedia)",
+                    type: "Practice Tool",
+                    category: "exercises",
+                    cost: "Free",
+                    description: "Practice investing with virtual money using real market data and conditions. No risk, real learning.",
+                    duration: "Ongoing",
+                    difficulty: 1,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-chart-bar",
+                    url: "https://www.investopedia.com/simulator/"
+                },
+                {
+                    title: "SEC.gov Investor Education",
+                    type: "Government Resources",
+                    category: "articles",
+                    cost: "Free",
+                    description: "Official SEC resources for investor education, including guides on stocks, bonds, and avoiding fraud.",
+                    duration: "1-2 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-shield-alt",
+                    url: "https://www.sec.gov/investor"
+                },
+                {
+                    title: "FINRA Investor Education",
+                    type: "Educational Resources",
+                    category: "articles",
+                    cost: "Free",
+                    description: "Comprehensive investor education resources covering all aspects of investing and financial planning.",
+                    duration: "2-3 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.finra.org/investors"
+                },
+                {
+                    title: "Bogleheads Wiki",
+                    type: "Community Wiki",
+                    category: "articles",
+                    cost: "Free",
+                    description: "Community-driven wiki covering index fund investing, portfolio theory, and Boglehead philosophy.",
+                    duration: "Ongoing reference",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.bogleheads.org/wiki/Main_Page"
+                },
+                
+                // PAID MATERIALS
                 {
                     title: "The Intelligent Investor",
                     type: "Book",
                     category: "books",
-                    description: "Classic guide to value investing by Benjamin Graham, the father of value investing.",
+                    cost: "Paid (~$15-20)",
+                    description: "Classic guide to value investing by Benjamin Graham, the father of value investing. Available in bookstores.",
                     duration: "2-3 weeks",
                     difficulty: 3,
                     levels: ["intermediate", "advanced"],
@@ -625,7 +956,8 @@ Return only the JSON array, no additional text.`;
                     title: "A Random Walk Down Wall Street",
                     type: "Book",
                     category: "books",
-                    description: "Comprehensive guide to investing covering different strategies and market theories.",
+                    cost: "Paid (~$15-20)",
+                    description: "Comprehensive guide to investing covering different strategies and market theories. Available on Amazon.",
                     duration: "2-3 weeks",
                     difficulty: 3,
                     levels: ["intermediate", "advanced"],
@@ -633,56 +965,74 @@ Return only the JSON array, no additional text.`;
                     url: "https://www.amazon.com/Random-Walk-Down-Wall-Street/dp/0393358380"
                 },
                 {
-                    title: "Investopedia Academy",
-                    type: "Online Course",
-                    category: "online-courses",
-                    description: "Professional investment courses covering stocks, bonds, options, and portfolio management.",
-                    duration: "4-8 weeks",
+                    title: "The Little Book of Common Sense Investing",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$12-15)",
+                    description: "John Bogle's guide to index fund investing. Simple, effective approach to building wealth.",
+                    duration: "1-2 weeks",
                     difficulty: 2,
                     levels: ["beginner", "intermediate"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Little-Book-Common-Sense-Investing/dp/1119404509"
+                },
+                {
+                    title: "Investopedia Academy (Premium)",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Paid ($199/year)",
+                    description: "Premium investment courses with certificates, advanced strategies, and professional tools.",
+                    duration: "4-8 weeks per course",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
                     icon: "fas fa-chart-line",
                     url: "https://academy.investopedia.com/"
                 },
                 {
-                    title: "The Plain Bagel Finance",
-                    type: "YouTube Channel",
-                    category: "youtube-tutorials",
-                    description: "Educational finance content covering investing, economics, and personal finance topics.",
+                    title: "Morningstar Investment Research",
+                    type: "Research Platform",
+                    category: "articles",
+                    cost: "Paid ($29.95/month)",
+                    description: "Professional investment research platform with stock analysis, fund ratings, and portfolio tools.",
                     duration: "Ongoing",
-                    difficulty: 2,
-                    levels: ["beginner", "intermediate"],
-                    icon: "fab fa-youtube",
-                    url: "https://www.youtube.com/c/ThePlainBagel"
-                },
-                {
-                    title: "Paper Trading Simulator",
-                    type: "Practice Tool",
-                    category: "exercises",
-                    description: "Practice investing with virtual money using real market data and conditions.",
-                    duration: "Ongoing",
-                    difficulty: 1,
-                    levels: ["beginner", "intermediate"],
-                    icon: "fas fa-chart-bar",
-                    url: "https://www.investopedia.com/simulator/"
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-chart-pie",
+                    url: "https://www.morningstar.com/"
                 }
             ],
             'spiritual growth': [
+                // FREE MATERIALS
                 {
-                    title: "The Power of Now",
-                    type: "Book",
-                    category: "books",
-                    description: "Spiritual guide to living in the present moment and finding inner peace.",
-                    duration: "2-3 weeks",
-                    difficulty: 2,
-                    levels: ["beginner", "intermediate"],
-                    icon: "fas fa-book",
-                    url: "https://www.amazon.com/Power-Now-Guide-Spiritual-Enlightenment/dp/1577314808"
+                    title: "Insight Timer - Meditation App",
+                    type: "Mobile App",
+                    category: "exercises",
+                    cost: "Free",
+                    description: "Free meditation app with thousands of guided meditations, music, and courses. Largest free meditation library.",
+                    duration: "Daily",
+                    difficulty: 1,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fas fa-mobile-alt",
+                    url: "https://insighttimer.com/"
                 },
                 {
-                    title: "Mindfulness-Based Stress Reduction",
+                    title: "Tara Brach Podcast",
+                    type: "Podcast",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Weekly talks on meditation, spiritual awakening, and compassionate awareness. Available on all podcast platforms.",
+                    duration: "Weekly",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-podcast",
+                    url: "https://www.tarabrach.com/talks/"
+                },
+                {
+                    title: "Mindfulness-Based Stress Reduction (Free Resources)",
                     type: "Online Course",
                     category: "online-courses",
-                    description: "Evidence-based program for reducing stress and improving well-being through mindfulness.",
+                    cost: "Free",
+                    description: "Free MBSR resources and guided practices from the Center for Mindfulness at UMass Medical School.",
                     duration: "8 weeks",
                     difficulty: 2,
                     levels: ["beginner", "intermediate"],
@@ -690,10 +1040,61 @@ Return only the JSON array, no additional text.`;
                     url: "https://www.umassmed.edu/cfm/mindfulness-based-programs/mbsr-courses/"
                 },
                 {
+                    title: "The Mindful Movement - YouTube",
+                    type: "YouTube Channel",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Free guided meditations, yoga, and mindfulness practices for all levels.",
+                    duration: "Ongoing",
+                    difficulty: 1,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.youtube.com/c/TheMindfulMovement"
+                },
+                {
+                    title: "Buddhist Geeks Podcast",
+                    type: "Podcast",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Explores the intersection of Buddhism, meditation, and modern life. Available on all podcast platforms.",
+                    duration: "Weekly",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-podcast",
+                    url: "https://www.buddhistgeeks.com/"
+                },
+                {
+                    title: "Dharma Seed - Free Dharma Talks",
+                    type: "Audio Library",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Extensive library of free dharma talks from meditation teachers worldwide.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fas fa-volume-up",
+                    url: "https://dharmaseed.org/"
+                },
+                
+                // PAID MATERIALS
+                {
+                    title: "The Power of Now",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$15-20)",
+                    description: "Eckhart Tolle's spiritual guide to living in the present moment and finding inner peace. Available in bookstores.",
+                    duration: "2-3 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Power-Now-Guide-Spiritual-Enlightenment/dp/1577314808"
+                },
+                {
                     title: "Headspace Meditation App",
                     type: "Mobile App",
                     category: "exercises",
-                    description: "Guided meditation and mindfulness exercises for daily practice.",
+                    cost: "Paid ($12.99/month)",
+                    description: "Premium guided meditation app with structured courses, sleep stories, and mindfulness exercises.",
                     duration: "Daily",
                     difficulty: 1,
                     levels: ["beginner", "intermediate"],
@@ -701,23 +1102,50 @@ Return only the JSON array, no additional text.`;
                     url: "https://www.headspace.com/"
                 },
                 {
-                    title: "Tara Brach Podcast",
-                    type: "Podcast",
-                    category: "youtube-tutorials",
-                    description: "Weekly talks on meditation, spiritual awakening, and compassionate awareness.",
-                    duration: "Weekly",
+                    title: "Calm Premium",
+                    type: "Mobile App",
+                    category: "exercises",
+                    cost: "Paid ($14.99/month)",
+                    description: "Premium meditation and sleep app with guided meditations, sleep stories, and masterclasses.",
+                    duration: "Daily",
+                    difficulty: 1,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-mobile-alt",
+                    url: "https://www.calm.com/"
+                },
+                {
+                    title: "Mindfulness-Based Stress Reduction (MBSR) Course",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Paid ($200-400)",
+                    description: "Official 8-week MBSR course with certified instructors. Available online and in-person worldwide.",
+                    duration: "8 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-leaf",
+                    url: "https://www.umassmed.edu/cfm/mindfulness-based-programs/mbsr-courses/"
+                },
+                {
+                    title: "The Untethered Soul",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$15-20)",
+                    description: "Michael Singer's guide to spiritual awakening and inner freedom. Available on Amazon and bookstores.",
+                    duration: "2-3 weeks",
                     difficulty: 2,
                     levels: ["intermediate", "advanced"],
-                    icon: "fas fa-podcast",
-                    url: "https://www.tarabrach.com/talks/"
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Untethered-Soul-Journey-Beyond-Yourself/dp/1572245379"
                 }
             ],
             'language learning': [
+                // FREE MATERIALS
                 {
                     title: "Duolingo",
                     type: "Language App",
                     category: "exercises",
-                    description: "Gamified language learning platform with bite-sized lessons and progress tracking.",
+                    cost: "Free",
+                    description: "Gamified language learning platform with bite-sized lessons and progress tracking. Covers 40+ languages.",
                     duration: "Daily",
                     difficulty: 1,
                     levels: ["beginner", "intermediate"],
@@ -725,21 +1153,23 @@ Return only the JSON array, no additional text.`;
                     url: "https://www.duolingo.com/"
                 },
                 {
-                    title: "FluentU",
-                    type: "Online Course",
-                    category: "online-courses",
-                    description: "Learn languages through real-world videos with interactive subtitles and quizzes.",
-                    duration: "3-6 months",
+                    title: "Anki Flashcards",
+                    type: "Spaced Repetition",
+                    category: "exercises",
+                    cost: "Free",
+                    description: "Digital flashcards with spaced repetition algorithm for efficient vocabulary learning. Available on all platforms.",
+                    duration: "Daily",
                     difficulty: 2,
-                    levels: ["beginner", "intermediate"],
-                    icon: "fas fa-video",
-                    url: "https://www.fluentu.com/"
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fas fa-brain",
+                    url: "https://apps.ankiweb.net/"
                 },
                 {
                     title: "HelloTalk",
                     type: "Language Exchange",
                     category: "study-groups",
-                    description: "Connect with native speakers for language exchange and conversation practice.",
+                    cost: "Free",
+                    description: "Connect with native speakers for language exchange and conversation practice. Text, voice, and video chat.",
                     duration: "Ongoing",
                     difficulty: 2,
                     levels: ["intermediate", "advanced"],
@@ -747,23 +1177,124 @@ Return only the JSON array, no additional text.`;
                     url: "https://www.hellotalk.com/"
                 },
                 {
-                    title: "Anki Flashcards",
-                    type: "Spaced Repetition",
+                    title: "BBC Languages",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free",
+                    description: "Free language courses from BBC covering French, Spanish, German, Italian, and more with audio and video.",
+                    duration: "3-6 months",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.bbc.co.uk/languages/"
+                },
+                {
+                    title: "Memrise",
+                    type: "Language App",
                     category: "exercises",
-                    description: "Digital flashcards with spaced repetition algorithm for efficient vocabulary learning.",
+                    cost: "Free",
+                    description: "Vocabulary learning app with native speaker videos and spaced repetition. Covers 20+ languages.",
                     duration: "Daily",
+                    difficulty: 1,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-mobile-alt",
+                    url: "https://www.memrise.com/"
+                },
+                {
+                    title: "Language Learning with Netflix",
+                    type: "Browser Extension",
+                    category: "exercises",
+                    cost: "Free",
+                    description: "Browser extension that adds dual subtitles and vocabulary learning to Netflix shows.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-tv",
+                    url: "https://languagelearningwithnetflix.com/"
+                },
+                {
+                    title: "Tandem Language Exchange",
+                    type: "Language Exchange",
+                    category: "study-groups",
+                    cost: "Free",
+                    description: "Language exchange app connecting learners with native speakers for conversation practice.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-users",
+                    url: "https://www.tandem.net/"
+                },
+                
+                // PAID MATERIALS
+                {
+                    title: "FluentU",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Paid ($20-30/month)",
+                    description: "Learn languages through real-world videos with interactive subtitles and quizzes. Premium content library.",
+                    duration: "3-6 months",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-video",
+                    url: "https://www.fluentu.com/"
+                },
+                {
+                    title: "Rosetta Stone",
+                    type: "Language App",
+                    category: "online-courses",
+                    cost: "Paid ($11.99/month)",
+                    description: "Comprehensive language learning program with speech recognition and immersive methodology.",
+                    duration: "3-12 months",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.rosettastone.com/"
+                },
+                {
+                    title: "Babbel",
+                    type: "Language App",
+                    category: "online-courses",
+                    cost: "Paid ($13.95/month)",
+                    description: "Structured language courses with conversation practice and grammar lessons. 14 languages available.",
+                    duration: "3-6 months",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-mobile-alt",
+                    url: "https://www.babbel.com/"
+                },
+                {
+                    title: "Pimsleur Audio Courses",
+                    type: "Audio Course",
+                    category: "online-courses",
+                    cost: "Paid ($14.95/month)",
+                    description: "Audio-based language learning method focusing on conversation and pronunciation. Available for 50+ languages.",
+                    duration: "1-5 months",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-volume-up",
+                    url: "https://www.pimsleur.com/"
+                },
+                {
+                    title: "italki - Online Language Tutors",
+                    type: "1-on-1 Tutoring",
+                    category: "coaching",
+                    cost: "Paid ($10-50/hour)",
+                    description: "Connect with native speaker tutors for personalized language lessons via video chat.",
+                    duration: "Ongoing",
                     difficulty: 2,
                     levels: ["beginner", "intermediate", "advanced"],
-                    icon: "fas fa-brain",
-                    url: "https://apps.ankiweb.net/"
+                    icon: "fas fa-user-tie",
+                    url: "https://www.italki.com/"
                 }
             ],
             'career development': [
+                // FREE MATERIALS
                 {
-                    title: "LinkedIn Learning",
+                    title: "LinkedIn Learning (Free Trial)",
                     type: "Online Course",
                     category: "online-courses",
-                    description: "Professional development courses covering business skills, technology, and creative topics.",
+                    cost: "Free (1 month trial)",
+                    description: "Professional development courses covering business skills, technology, and creative topics. 1-month free trial available.",
                     duration: "1-4 weeks per course",
                     difficulty: 2,
                     levels: ["beginner", "intermediate", "advanced"],
@@ -771,21 +1302,11 @@ Return only the JSON array, no additional text.`;
                     url: "https://www.linkedin.com/learning/"
                 },
                 {
-                    title: "The Lean Startup",
-                    type: "Book",
-                    category: "books",
-                    description: "Guide to building successful startups through validated learning and rapid iteration.",
-                    duration: "2-3 weeks",
-                    difficulty: 3,
-                    levels: ["intermediate", "advanced"],
-                    icon: "fas fa-book",
-                    url: "https://www.amazon.com/Lean-Startup-Entrepreneurs-Continuous-Innovation/dp/0307887898"
-                },
-                {
-                    title: "Harvard Business Review",
+                    title: "Harvard Business Review (Free Articles)",
                     type: "Articles",
                     category: "articles",
-                    description: "Leading business publication with insights on management, strategy, and leadership.",
+                    cost: "Free",
+                    description: "Leading business publication with free articles on management, strategy, and leadership. Premium content available.",
                     duration: "Weekly",
                     difficulty: 3,
                     levels: ["intermediate", "advanced"],
@@ -793,15 +1314,138 @@ Return only the JSON array, no additional text.`;
                     url: "https://hbr.org/"
                 },
                 {
-                    title: "Mentorship Program",
+                    title: "Coursera Business Courses (Audit Mode)",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free (Audit)",
+                    description: "Free business courses from top universities including Wharton, Stanford, and Yale. Audit mode available.",
+                    duration: "4-8 weeks per course",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.coursera.org/browse/business"
+                },
+                {
+                    title: "TED Talks - Business & Leadership",
+                    type: "Video Talks",
+                    category: "youtube-tutorials",
+                    cost: "Free",
+                    description: "Inspiring talks on leadership, entrepreneurship, and business innovation from industry leaders.",
+                    duration: "Ongoing",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fab fa-youtube",
+                    url: "https://www.ted.com/topics/business"
+                },
+                {
+                    title: "SCORE Business Mentoring",
                     type: "1-on-1 Coaching",
                     category: "coaching",
-                    description: "Connect with industry professionals for career guidance and skill development.",
+                    cost: "Free",
+                    description: "Free business mentoring from experienced entrepreneurs and business professionals. Sponsored by SBA.",
                     duration: "3-6 months",
                     difficulty: 2,
-                    levels: ["intermediate", "advanced"],
+                    levels: ["beginner", "intermediate", "advanced"],
                     icon: "fas fa-user-tie",
-                    url: "#"
+                    url: "https://www.score.org/"
+                },
+                {
+                    title: "Khan Academy - Economics & Finance",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free",
+                    description: "Free courses on economics, finance, and entrepreneurship fundamentals.",
+                    duration: "2-4 weeks per course",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.khanacademy.org/economics-finance-domain"
+                },
+                {
+                    title: "Google Digital Garage",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Free",
+                    description: "Free digital marketing and business skills courses from Google. Includes certificates.",
+                    duration: "1-3 weeks per course",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://learndigital.withgoogle.com/digitalgarage"
+                },
+                
+                // PAID MATERIALS
+                {
+                    title: "The Lean Startup",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$15-20)",
+                    description: "Eric Ries's guide to building successful startups through validated learning and rapid iteration. Available in bookstores.",
+                    duration: "2-3 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Lean-Startup-Entrepreneurs-Continuous-Innovation/dp/0307887898"
+                },
+                {
+                    title: "Good to Great",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$15-20)",
+                    description: "Jim Collins' research on what makes companies transition from good to great. Essential business reading.",
+                    duration: "2-3 weeks",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Good-Great-Jim-Collins/dp/0066620996"
+                },
+                {
+                    title: "The 7 Habits of Highly Effective People",
+                    type: "Book",
+                    category: "books",
+                    cost: "Paid (~$15-20)",
+                    description: "Stephen Covey's classic on personal and professional effectiveness. Available on Amazon and bookstores.",
+                    duration: "2-3 weeks",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fas fa-book",
+                    url: "https://www.amazon.com/Habits-Highly-Effective-People-Powerful/dp/1982137274"
+                },
+                {
+                    title: "LinkedIn Learning (Premium)",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Paid ($29.99/month)",
+                    description: "Premium professional development courses with certificates and personalized recommendations.",
+                    duration: "1-4 weeks per course",
+                    difficulty: 2,
+                    levels: ["beginner", "intermediate", "advanced"],
+                    icon: "fab fa-linkedin",
+                    url: "https://www.linkedin.com/learning/"
+                },
+                {
+                    title: "MasterClass - Business & Leadership",
+                    type: "Online Course",
+                    category: "online-courses",
+                    cost: "Paid ($15/month)",
+                    description: "Learn from business leaders like Howard Schultz, Anna Wintour, and Bob Iger. High-quality video lessons.",
+                    duration: "2-4 hours per class",
+                    difficulty: 2,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-graduation-cap",
+                    url: "https://www.masterclass.com/"
+                },
+                {
+                    title: "Harvard Business Review (Premium)",
+                    type: "Articles",
+                    category: "articles",
+                    cost: "Paid ($10/month)",
+                    description: "Premium access to HBR's complete archive, case studies, and exclusive content.",
+                    duration: "Ongoing",
+                    difficulty: 3,
+                    levels: ["intermediate", "advanced"],
+                    icon: "fas fa-newspaper",
+                    url: "https://hbr.org/"
                 }
             ]
         };
@@ -962,6 +1606,7 @@ Return only the JSON array, no additional text.`;
                 <td class="day-cell">Day ${material.day}</td>
                 <td class="material-cell">
                     ${materialCellContent}
+                    ${material.cost ? `<div class="cost-info">${material.cost}</div>` : ''}
                 </td>
                 <td class="type-cell">
                     <span class="type-badge ${material.isRestDay ? 'rest-day-badge' : ''}">${material.type}</span>

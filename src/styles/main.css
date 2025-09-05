@@ -716,6 +716,17 @@ body {
     color: var(--text-light);
 }
 
+.cost-info {
+    font-size: 0.75rem;
+    color: var(--accent-color);
+    font-weight: 500;
+    margin-top: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 12px;
+    display: inline-block;
+}
+
 .type-cell {
     min-width: 120px;
 }
