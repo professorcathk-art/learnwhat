@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnWhat - Your Learning Journey Starts Here</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1><i class="fas fa-graduation-cap"></i> LearnWhat</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#categories" class="nav-link">Categories</a>
+                <a href="#progress" class="nav-link">Progress</a>
+                <a href="#about" class="nav-link">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h2 class="hero-title">Your Learning Journey Starts Here</h2>
+                <p class="hero-subtitle">Explore, learn, and master new skills across technology, business, academics, and more.</p>
+                <button class="cta-button" onclick="scrollToCategories()">
+                    <i class="fas fa-rocket"></i> Start Learning
+                </button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <h3>6</h3>
+                    <p>Categories</p>
+                </div>
+                <div class="stat">
+                    <h3>25+</h3>
+                    <p>Topics</p>
+                </div>
+                <div class="stat">
+                    <h3>∞</h3>
+                    <p>Possibilities</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="categories" class="categories">
+            <div class="container">
+                <h2 class="section-title">Learning Categories</h2>
+                <div class="categories-grid">
+                    <!-- Technology -->
+                    <div class="category-card" data-category="technology">
+                        <div class="category-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <h3>Technology</h3>
+                        <p>Web Development, Data Science, Mobile Development, DevOps, Cybersecurity</p>
+                        <div class="category-topics">
+                            <span class="topic-tag">Frontend</span>
+                            <span class="topic-tag">Backend</span>
+                            <span class="topic-tag">AI/ML</span>
+                            <span class="topic-tag">Cloud</span>
+                        </div>
+                        <button class="explore-btn" onclick="exploreCategory('technology')">
+                            Explore <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Business -->
+                    <div class="category-card" data-category="business">
+                        <div class="category-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3>Business</h3>
+                        <p>Entrepreneurship, Marketing, Finance, Management, Product Management</p>
+                        <div class="category-topics">
+                            <span class="topic-tag">Startup</span>
+                            <span class="topic-tag">Marketing</span>
+                            <span class="topic-tag">Finance</span>
+                            <span class="topic-tag">Leadership</span>
+                        </div>
+                        <button class="explore-btn" onclick="exploreCategory('business')">
+                            Explore <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Academic -->
+                    <div class="category-card" data-category="academic">
+                        <div class="category-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3>Academic</h3>
+                        <p>Computer Science, Mathematics, Physics, Economics, Psychology</p>
+                        <div class="category-topics">
+                            <span class="topic-tag">CS</span>
+                            <span class="topic-tag">Math</span>
+                            <span class="topic-tag">Physics</span>
+                            <span class="topic-tag">Economics</span>
+                        </div>
+                        <button class="explore-btn" onclick="exploreCategory('academic')">
+                            Explore <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Creative -->
+                    <div class="category-card" data-category="creative">
+                        <div class="category-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Creative</h3>
+                        <p>Design, Writing, Photography, Music, Content Creation</p>
+                        <div class="category-topics">
+                            <span class="topic-tag">UI/UX</span>
+                            <span class="topic-tag">Writing</span>
+                            <span class="topic-tag">Photo</span>
+                            <span class="topic-tag">Music</span>
+                        </div>
+                        <button class="explore-btn" onclick="exploreCategory('creative')">
+                            Explore <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Languages -->
+                    <div class="category-card" data-category="languages">
+                        <div class="category-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h3>Languages</h3>
+                        <p>Programming Languages, Human Languages, Communication</p>
+                        <div class="category-topics">
+                            <span class="topic-tag">Python</span>
+                            <span class="topic-tag">JavaScript</span>
+                            <span class="topic-tag">English</span>
+                            <span class="topic-tag">Chinese</span>
+                        </div>
+                        <button class="explore-btn" onclick="exploreCategory('languages')">
+                            Explore <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Personal Development -->
+                    <div class="category-card" data-category="personal-development">
+                        <div class="category-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h3>Personal Development</h3>
+                        <p>Productivity, Health, Communication, Critical Thinking</p>
+                        <div class="category-topics">
+                            <span class="topic-tag">Productivity</span>
+                            <span class="topic-tag">Health</span>
+                            <span class="topic-tag">Communication</span>
+                            <span class="topic-tag">Thinking</span>
+                        </div>
+                        <button class="explore-btn" onclick="exploreCategory('personal-development')">
+                            Explore <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="progress" class="progress-section">
+            <div class="container">
+                <h2 class="section-title">Your Learning Progress</h2>
+                <div class="progress-grid">
+                    <div class="progress-card">
+                        <h3>Learning Streak</h3>
+                        <div class="progress-number">0</div>
+                        <p>days in a row</p>
+                    </div>
+                    <div class="progress-card">
+                        <h3>Topics Completed</h3>
+                        <div class="progress-number">0</div>
+                        <p>out of 25+</p>
+                    </div>
+                    <div class="progress-card">
+                        <h3>Time Invested</h3>
+                        <div class="progress-number">0h</div>
+                        <p>total learning time</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>LearnWhat</h3>
+                    <p>Your comprehensive learning platform for mastering new skills and knowledge.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#categories">Categories</a></li>
+                        <li><a href="#progress">Progress</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 LearnWhat. Built with passion for learning.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="src/utils/main.js"></script>
+</body>
+</html>
