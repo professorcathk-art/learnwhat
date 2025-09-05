@@ -1,403 +1,489 @@
-// LearnWhat - Main JavaScript functionality
+// LearnWhat MVP - Main JavaScript functionality
 
-// Smooth scrolling for navigation links
-function scrollToCategories() {
-    document.getElementById('categories').scrollIntoView({
-        behavior: 'smooth'
-    });
-}
-
-// Category exploration functionality
-function exploreCategory(category) {
-    // Create a modal or redirect to category page
-    showCategoryModal(category);
-}
-
-// Show category modal with detailed information
-function showCategoryModal(category) {
-    const categoryData = {
-        'technology': {
-            title: 'Technology',
-            description: 'Master the latest technologies and build the future',
-            topics: [
-                { name: 'Web Development', path: 'technology/web-development', description: 'Frontend, Backend, Full-Stack development' },
-                { name: 'Data Science & AI/ML', path: 'technology/data-science-ai', description: 'Machine Learning, Data Analysis, AI' },
-                { name: 'Mobile Development', path: 'technology/mobile-development', description: 'iOS, Android, React Native, Flutter' },
-                { name: 'DevOps & Cloud', path: 'technology/devops-cloud', description: 'AWS, Docker, Kubernetes, CI/CD' },
-                { name: 'Cybersecurity', path: 'technology/cybersecurity', description: 'Security, Ethical Hacking, Network Security' }
-            ]
-        },
-        'business': {
-            title: 'Business',
-            description: 'Build successful businesses and advance your career',
-            topics: [
-                { name: 'Entrepreneurship', path: 'business/entrepreneurship', description: 'Startup, Business Planning, Innovation' },
-                { name: 'Marketing & Sales', path: 'business/marketing-sales', description: 'Digital Marketing, Sales Strategy, Growth' },
-                { name: 'Finance & Investment', path: 'business/finance-investment', description: 'Financial Analysis, Investment, Trading' },
-                { name: 'Management & Leadership', path: 'business/management-leadership', description: 'Team Management, Leadership Skills' },
-                { name: 'Product Management', path: 'business/product-management', description: 'Product Strategy, Roadmapping, Analytics' }
-            ]
-        },
-        'academic': {
-            title: 'Academic',
-            description: 'Deepen your understanding of core academic subjects',
-            topics: [
-                { name: 'Computer Science', path: 'academic/computer-science', description: 'Algorithms, Data Structures, Theory' },
-                { name: 'Mathematics', path: 'academic/mathematics', description: 'Calculus, Linear Algebra, Statistics' },
-                { name: 'Physics', path: 'academic/physics', description: 'Classical, Quantum, Modern Physics' },
-                { name: 'Economics', path: 'academic/economics', description: 'Microeconomics, Macroeconomics, Finance' },
-                { name: 'Psychology', path: 'academic/psychology', description: 'Cognitive, Behavioral, Social Psychology' }
-            ]
-        },
-        'creative': {
-            title: 'Creative',
-            description: 'Unleash your creativity and artistic potential',
-            topics: [
-                { name: 'Design', path: 'creative/design', description: 'UI/UX, Graphic Design, Web Design' },
-                { name: 'Writing & Content', path: 'creative/writing-content', description: 'Copywriting, Content Strategy, Blogging' },
-                { name: 'Photography & Video', path: 'creative/photography-video', description: 'Photography, Videography, Editing' },
-                { name: 'Music & Audio', path: 'creative/music-audio', description: 'Music Production, Audio Engineering' }
-            ]
-        },
-        'languages': {
-            title: 'Languages',
-            description: 'Master programming and human languages',
-            topics: [
-                { name: 'Programming Languages', path: 'languages/programming-languages', description: 'Python, JavaScript, Java, C++, Go' },
-                { name: 'Human Languages', path: 'languages/human-languages', description: 'English, Chinese, Spanish, French, German' }
-            ]
-        },
-        'personal-development': {
-            title: 'Personal Development',
-            description: 'Grow personally and professionally',
-            topics: [
-                { name: 'Productivity & Time Management', path: 'personal-development/productivity', description: 'GTD, Time Blocking, Efficiency' },
-                { name: 'Health & Wellness', path: 'personal-development/health-wellness', description: 'Fitness, Nutrition, Mental Health' },
-                { name: 'Communication Skills', path: 'personal-development/communication', description: 'Public Speaking, Writing, Negotiation' },
-                { name: 'Critical Thinking', path: 'personal-development/critical-thinking', description: 'Logic, Problem Solving, Decision Making' }
-            ]
-        }
-    };
-
-    const data = categoryData[category];
-    if (!data) return;
-
-    // Create modal HTML
-    const modalHTML = `
-        <div class="modal-overlay" onclick="closeModal()">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <div class="modal-header">
-                    <h2>${data.title}</h2>
-                    <button class="modal-close" onclick="closeModal()">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p class="modal-description">${data.description}</p>
-                    <div class="topics-list">
-                        ${data.topics.map(topic => `
-                            <div class="topic-item" onclick="navigateToTopic('${topic.path}')">
-                                <h4>${topic.name}</h4>
-                                <p>${topic.description}</p>
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Add modal to page
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    document.body.style.overflow = 'hidden';
-}
-
-// Close modal
-function closeModal() {
-    const modal = document.querySelector('.modal-overlay');
-    if (modal) {
-        modal.remove();
-        document.body.style.overflow = 'auto';
+class LearnWhatApp {
+    constructor() {
+        this.currentStep = 1;
+        this.userData = {
+            topic: '',
+            level: '',
+            purpose: '',
+            duration: '',
+            intensity: '',
+            materials: []
+        };
+        this.learningPlan = null;
+        this.currentUser = null;
+        
+        this.init();
     }
-}
 
-// Navigate to specific topic
-function navigateToTopic(topicPath) {
-    // For now, just show an alert. In a real app, this would navigate to the topic page
-    alert(`Navigating to: ${topicPath}\n\nThis would open the learning materials for this topic.`);
-    closeModal();
-}
+    init() {
+        this.bindEvents();
+        this.loadUserData();
+        this.updateStepVisibility();
+    }
 
-// Navigation functionality
-function initNavigation() {
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
+    bindEvents() {
+        // Topic selection
+        document.getElementById('topicSearch').addEventListener('input', (e) => {
+            this.handleTopicSearch(e.target.value);
+        });
+
+        document.querySelectorAll('.topic-card').forEach(card => {
+            card.addEventListener('click', () => {
+                this.selectTopic(card);
+            });
+        });
+
+        // Step navigation
+        document.getElementById('nextStep1').addEventListener('click', () => {
+            this.nextStep();
+        });
+
+        document.getElementById('prevStep2').addEventListener('click', () => {
+            this.prevStep();
+        });
+
+        document.getElementById('nextStep2').addEventListener('click', () => {
+            this.nextStep();
+        });
+
+        document.getElementById('prevStep3').addEventListener('click', () => {
+            this.prevStep();
+        });
+
+        document.getElementById('nextStep3').addEventListener('click', () => {
+            this.generateLearningPlan();
+        });
+
+        document.getElementById('prevStep4').addEventListener('click', () => {
+            this.prevStep();
+        });
+
+        document.getElementById('registerBtn').addEventListener('click', () => {
+            this.showRegistrationModal();
+        });
+
+        // Form events
+        document.querySelectorAll('input[name="level"], input[name="purpose"], input[name="duration"], input[name="intensity"]').forEach(input => {
+            input.addEventListener('change', () => {
+                this.updateStep2Validation();
+            });
+        });
+
+        document.querySelectorAll('input[name="materials"]').forEach(input => {
+            input.addEventListener('change', () => {
+                this.updateStep3Validation();
+            });
+        });
+
+        // Registration form
+        document.getElementById('registrationForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            // Remove active class from all links
-            navLinks.forEach(l => l.classList.remove('active'));
-            
-            // Add active class to clicked link
-            link.classList.add('active');
-            
-            // Get target section
-            const targetId = link.getAttribute('href').substring(1);
-            const targetSection = document.getElementById(targetId);
-            
-            if (targetSection) {
-                targetSection.scrollIntoView({
-                    behavior: 'smooth'
-                });
+            this.handleRegistration(e);
+        });
+
+        // Login/Logout
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            this.showLoginModal();
+        });
+
+        document.getElementById('signupBtn').addEventListener('click', () => {
+            this.showRegistrationModal();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            this.logout();
+        });
+
+        // Modal close
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                this.closeModal();
             }
         });
-    });
-}
+    }
 
-// Progress tracking (localStorage)
-function initProgressTracking() {
-    // Load progress from localStorage
-    const progress = JSON.parse(localStorage.getItem('learnwhat-progress') || '{}');
-    
-    // Update progress display
-    updateProgressDisplay(progress);
-}
+    handleTopicSearch(value) {
+        if (value.trim()) {
+            this.userData.topic = value.trim();
+            this.updateStep1Validation();
+        }
+    }
 
-function updateProgressDisplay(progress) {
-    const streakElement = document.querySelector('.progress-grid .progress-card:nth-child(1) .progress-number');
-    const completedElement = document.querySelector('.progress-grid .progress-card:nth-child(2) .progress-number');
-    const timeElement = document.querySelector('.progress-grid .progress-card:nth-child(3) .progress-number');
-    
-    if (streakElement) streakElement.textContent = progress.streak || 0;
-    if (completedElement) completedElement.textContent = progress.completed || 0;
-    if (timeElement) timeElement.textContent = `${progress.time || 0}h`;
-}
+    selectTopic(card) {
+        document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        this.userData.topic = card.dataset.topic;
+        this.updateStep1Validation();
+    }
 
-// Search functionality
-function initSearch() {
-    // Add search input to header
-    const nav = document.querySelector('.nav');
-    const searchHTML = `
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search topics..." class="search-input">
-            <i class="fas fa-search search-icon"></i>
-        </div>
-    `;
-    
-    nav.insertAdjacentHTML('beforeend', searchHTML);
-    
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', handleSearch);
-}
+    updateStep1Validation() {
+        const nextBtn = document.getElementById('nextStep1');
+        nextBtn.disabled = !this.userData.topic;
+    }
 
-function handleSearch(e) {
-    const query = e.target.value.toLowerCase();
-    const categoryCards = document.querySelectorAll('.category-card');
-    
-    categoryCards.forEach(card => {
-        const title = card.querySelector('h3').textContent.toLowerCase();
-        const description = card.querySelector('p').textContent.toLowerCase();
-        const topics = Array.from(card.querySelectorAll('.topic-tag')).map(tag => tag.textContent.toLowerCase());
+    updateStep2Validation() {
+        const level = document.querySelector('input[name="level"]:checked');
+        const purpose = document.querySelector('input[name="purpose"]:checked');
+        const duration = document.querySelector('input[name="duration"]:checked');
+        const intensity = document.querySelector('input[name="intensity"]:checked');
         
-        const matches = title.includes(query) || 
-                       description.includes(query) || 
-                       topics.some(topic => topic.includes(query));
+        const nextBtn = document.getElementById('nextStep2');
+        nextBtn.disabled = !(level && purpose && duration && intensity);
         
-        card.style.display = matches ? 'block' : 'none';
-    });
-}
+        if (level) this.userData.level = level.value;
+        if (purpose) this.userData.purpose = purpose.value;
+        if (duration) this.userData.duration = duration.value;
+        if (intensity) this.userData.intensity = intensity.value;
+    }
 
-// Add CSS for modal and search
-function addModalStyles() {
-    const modalCSS = `
-        <style>
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 2rem;
+    updateStep3Validation() {
+        const selectedMaterials = document.querySelectorAll('input[name="materials"]:checked');
+        const nextBtn = document.getElementById('nextStep3');
+        
+        this.userData.materials = Array.from(selectedMaterials).map(input => input.value);
+        nextBtn.disabled = selectedMaterials.length === 0;
+    }
+
+    nextStep() {
+        if (this.currentStep < 4) {
+            this.currentStep++;
+            this.updateStepVisibility();
+        }
+    }
+
+    prevStep() {
+        if (this.currentStep > 1) {
+            this.currentStep--;
+            this.updateStepVisibility();
+        }
+    }
+
+    updateStepVisibility() {
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        document.getElementById(`step${this.currentStep}`).classList.add('active');
+        
+        if (this.currentStep === 4) {
+            this.updatePlanPreview();
+        }
+    }
+
+    generateLearningPlan() {
+        this.learningPlan = this.createLearningPlan();
+        this.nextStep();
+    }
+
+    createLearningPlan() {
+        const duration = parseInt(this.userData.duration);
+        const intensity = this.userData.intensity;
+        const materials = this.userData.materials;
+        
+        return {
+            topic: this.userData.topic,
+            level: this.userData.level,
+            purpose: this.userData.purpose,
+            duration: duration,
+            intensity: intensity,
+            materials: materials,
+            timeline: this.generateTimeline(duration, intensity, materials),
+            checklist: this.generateChecklist(duration, intensity, materials)
+        };
+    }
+
+    generateTimeline(duration, intensity, materials) {
+        const timeline = [];
+        const weeks = Math.ceil(duration / 7);
+        
+        for (let week = 1; week <= weeks; week++) {
+            timeline.push({
+                week: week,
+                title: this.getWeekTitle(week, weeks),
+                activities: this.getWeekActivities(week, weeks, intensity, materials)
+            });
         }
         
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            max-width: 600px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        return timeline;
+    }
+
+    getWeekTitle(week, totalWeeks) {
+        if (week === 1) return "Foundation & Introduction";
+        if (week <= totalWeeks * 0.3) return "Building Fundamentals";
+        if (week <= totalWeeks * 0.7) return "Intermediate Concepts";
+        if (week <= totalWeeks * 0.9) return "Advanced Topics";
+        return "Mastery & Projects";
+    }
+
+    getWeekActivities(week, totalWeeks, intensity, materials) {
+        const activities = [];
+        const hoursPerDay = intensity === 'light' ? 0.5 : intensity === 'moderate' ? 1.5 : 3;
+        
+        if (materials.includes('youtube-tutorials')) {
+            activities.push(`${hoursPerDay * 2} hours of video tutorials`);
+        }
+        if (materials.includes('books')) {
+            activities.push(`Read 1-2 chapters from recommended books`);
+        }
+        if (materials.includes('projects')) {
+            activities.push(`Work on hands-on project`);
+        }
+        if (materials.includes('exercises')) {
+            activities.push(`Complete practice exercises`);
         }
         
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2rem 2rem 1rem;
-            border-bottom: 1px solid #e5e7eb;
+        return activities;
+    }
+
+    generateChecklist(duration, intensity, materials) {
+        const checklist = [];
+        const totalItems = Math.min(duration, 20);
+        
+        for (let i = 1; i <= totalItems; i++) {
+            checklist.push({
+                id: i,
+                title: this.getChecklistItemTitle(i, materials),
+                completed: false
+            });
         }
         
-        .modal-header h2 {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-            font-weight: 600;
+        return checklist;
+    }
+
+    getChecklistItemTitle(item, materials) {
+        const titles = [
+            "Complete introduction to the topic",
+            "Watch foundational video content",
+            "Read recommended materials",
+            "Complete first practice exercise",
+            "Build a simple project",
+            "Join relevant community/forum",
+            "Complete intermediate exercises",
+            "Work on advanced project",
+            "Create portfolio piece",
+            "Share your learning journey"
+        ];
+        
+        return titles[item - 1] || `Complete learning milestone ${item}`;
+    }
+
+    updatePlanPreview() {
+        if (!this.learningPlan) return;
+        
+        document.getElementById('planTopic').textContent = this.learningPlan.topic;
+        document.getElementById('planDuration').textContent = `${this.learningPlan.duration} days`;
+        document.getElementById('planIntensity').textContent = this.learningPlan.intensity;
+        document.getElementById('planMaterials').textContent = this.learningPlan.materials.length + ' types selected';
+        
+        const timelineContent = document.getElementById('timelineContent');
+        timelineContent.innerHTML = '';
+        
+        this.learningPlan.timeline.forEach(week => {
+            const timelineItem = document.createElement('div');
+            timelineItem.className = 'timeline-item';
+            timelineItem.innerHTML = `
+                <i class="fas fa-calendar-week"></i>
+                <div class="timeline-content">
+                    <h4>Week ${week.week}: ${week.title}</h4>
+                    <p>${week.activities.join(', ')}</p>
+                </div>
+            `;
+            timelineContent.appendChild(timelineItem);
+        });
+    }
+
+    showRegistrationModal() {
+        document.getElementById('registrationModal').classList.add('active');
+    }
+
+    showLoginModal() {
+        const email = prompt('Enter your email:');
+        if (email) {
+            this.currentUser = { email, name: email.split('@')[0] };
+            this.showDashboard();
+        }
+    }
+
+    closeModal() {
+        document.getElementById('registrationModal').classList.remove('active');
+    }
+
+    handleRegistration(e) {
+        const formData = new FormData(e.target);
+        const userData = {
+            fullName: formData.get('fullName'),
+            email: formData.get('email'),
+            password: formData.get('password')
+        };
+        
+        if (formData.get('password') !== formData.get('confirmPassword')) {
+            alert('Passwords do not match!');
+            return;
         }
         
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6b7280;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
+        this.currentUser = {
+            name: userData.fullName,
+            email: userData.email
+        };
         
-        .modal-close:hover {
-            background: #f3f4f6;
-            color: #374151;
-        }
+        localStorage.setItem('learnwhat-user', JSON.stringify(this.currentUser));
+        localStorage.setItem('learnwhat-plan', JSON.stringify(this.learningPlan));
         
-        .modal-body {
-            padding: 1rem 2rem 2rem;
-        }
+        this.closeModal();
+        this.showDashboard();
+    }
+
+    showDashboard() {
+        document.querySelector('.main-container').style.display = 'none';
+        document.getElementById('dashboard').classList.remove('hidden');
         
-        .modal-description {
-            color: #6b7280;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
+        document.getElementById('userName').textContent = this.currentUser.name;
+        this.loadDashboardData();
+    }
+
+    loadDashboardData() {
+        const savedPlan = localStorage.getItem('learnwhat-plan');
+        if (savedPlan) {
+            this.learningPlan = JSON.parse(savedPlan);
+            this.displayLearningPlan();
+            this.loadCoaches();
         }
+    }
+
+    displayLearningPlan() {
+        if (!this.learningPlan) return;
         
-        .topics-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        const completedItems = this.learningPlan.checklist.filter(item => item.completed).length;
+        const totalItems = this.learningPlan.checklist.length;
+        const progressPercentage = (completedItems / totalItems) * 100;
+        
+        document.getElementById('progressFill').style.width = `${progressPercentage}%`;
+        document.getElementById('progressText').textContent = `${Math.round(progressPercentage)}% Complete`;
+        
+        const checklistContainer = document.getElementById('planChecklist');
+        checklistContainer.innerHTML = '';
+        
+        this.learningPlan.checklist.forEach(item => {
+            const checklistItem = document.createElement('div');
+            checklistItem.className = `checklist-item ${item.completed ? 'completed' : ''}`;
+            checklistItem.innerHTML = `
+                <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="app.toggleChecklistItem(${item.id})">
+                <span class="checklist-text">${item.title}</span>
+            `;
+            checklistContainer.appendChild(checklistItem);
+        });
+    }
+
+    toggleChecklistItem(itemId) {
+        const item = this.learningPlan.checklist.find(item => item.id === itemId);
+        if (item) {
+            item.completed = !item.completed;
+            localStorage.setItem('learnwhat-plan', JSON.stringify(this.learningPlan));
+            this.displayLearningPlan();
         }
-        
-        .topic-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .topic-item:hover {
-            border-color: var(--primary-color);
-            background: #f8fafc;
-            transform: translateX(4px);
-        }
-        
-        .topic-item h4 {
-            color: var(--text-primary);
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .topic-item p {
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-        
-        .topic-item i {
-            color: var(--primary-color);
-            transition: transform 0.3s ease;
-        }
-        
-        .topic-item:hover i {
-            transform: translateX(4px);
-        }
-        
-        .search-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        
-        .search-input {
-            padding: 0.5rem 1rem 0.5rem 2.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            width: 200px;
-            transition: all 0.3s ease;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 0.75rem;
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-        
-        @media (max-width: 768px) {
-            .search-input {
-                width: 150px;
+    }
+
+    loadCoaches() {
+        const coaches = [
+            {
+                id: 1,
+                name: "Sarah Chen",
+                title: "AI/ML Expert",
+                rating: 4.9,
+                reviews: 127,
+                specialties: ["Machine Learning", "Python", "Data Science"],
+                price: "$80/hour",
+                avatar: "SC"
+            },
+            {
+                id: 2,
+                name: "Marcus Johnson",
+                title: "Web Development Coach",
+                rating: 4.8,
+                reviews: 89,
+                specialties: ["React", "Node.js", "Full-Stack"],
+                price: "$70/hour",
+                avatar: "MJ"
+            },
+            {
+                id: 3,
+                name: "Dr. Emily Rodriguez",
+                title: "Business Strategy Advisor",
+                rating: 4.9,
+                reviews: 156,
+                specialties: ["Entrepreneurship", "Marketing", "Finance"],
+                price: "$120/hour",
+                avatar: "ER"
             }
+        ];
+        
+        const coachesGrid = document.getElementById('coachesGrid');
+        coachesGrid.innerHTML = '';
+        
+        coaches.forEach(coach => {
+            const coachCard = document.createElement('div');
+            coachCard.className = 'coach-card';
+            coachCard.innerHTML = `
+                <div class="coach-header">
+                    <div class="coach-avatar">${coach.avatar}</div>
+                    <div class="coach-info">
+                        <h4>${coach.name}</h4>
+                        <p>${coach.title}</p>
+                    </div>
+                </div>
+                <div class="coach-rating">
+                    <div class="stars">★★★★★</div>
+                    <span>${coach.rating} (${coach.reviews} reviews)</span>
+                </div>
+                <div class="coach-specialties">
+                    ${coach.specialties.map(specialty => `<span class="specialty-tag">${specialty}</span>`).join('')}
+                </div>
+                <div class="coach-price">${coach.price}</div>
+            `;
             
-            .modal-overlay {
-                padding: 1rem;
-            }
+            coachCard.addEventListener('click', () => {
+                this.selectCoach(coach);
+            });
             
-            .modal-content {
-                max-height: 90vh;
-            }
+            coachesGrid.appendChild(coachCard);
+        });
+    }
+
+    selectCoach(coach) {
+        alert(`You selected ${coach.name} as your coach! In a real app, this would redirect to booking/scheduling.`);
+    }
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('learnwhat-user');
+        
+        document.querySelector('.main-container').style.display = 'block';
+        document.getElementById('dashboard').classList.add('hidden');
+        
+        this.currentStep = 1;
+        this.updateStepVisibility();
+    }
+
+    loadUserData() {
+        const savedUser = localStorage.getItem('learnwhat-user');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            this.showDashboard();
         }
-        </style>
-    `;
-    
-    document.head.insertAdjacentHTML('beforeend', modalCSS);
+    }
 }
 
-// Initialize everything when DOM is loaded
+// Initialize the app when DOM is loaded
+let app;
 document.addEventListener('DOMContentLoaded', function() {
-    initNavigation();
-    initProgressTracking();
-    initSearch();
-    addModalStyles();
-    
-    // Add some sample progress data
-    const sampleProgress = {
-        streak: 7,
-        completed: 12,
-        time: 45
-    };
-    
-    // Uncomment the line below to see sample progress
-    // localStorage.setItem('learnwhat-progress', JSON.stringify(sampleProgress));
-    // updateProgressDisplay(sampleProgress);
+    app = new LearnWhatApp();
 });
 
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    // ESC to close modal
-    if (e.key === 'Escape') {
-        closeModal();
+// Global functions for HTML onclick events
+function closeModal() {
+    if (app) {
+        app.closeModal();
     }
-    
-    // Ctrl/Cmd + K to focus search
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.focus();
-        }
-    }
-});
+}

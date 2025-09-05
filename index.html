@@ -3,219 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnWhat - Your Learning Journey Starts Here</title>
+    <title>LearnWhat - AI-Powered Learning Platform</title>
     <link rel="stylesheet" href="src/styles/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header class="header">
-        <nav class="nav">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
             <div class="nav-brand">
                 <h1><i class="fas fa-graduation-cap"></i> LearnWhat</h1>
             </div>
-            <div class="nav-links">
-                <a href="#home" class="nav-link active">Home</a>
-                <a href="#categories" class="nav-link">Categories</a>
-                <a href="#progress" class="nav-link">Progress</a>
-                <a href="#about" class="nav-link">About</a>
+            <div class="nav-actions">
+                <button class="btn-secondary" id="loginBtn">Login</button>
+                <button class="btn-primary" id="signupBtn">Sign Up</button>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
 
-    <main class="main">
-        <section id="home" class="hero">
-            <div class="hero-content">
-                <h2 class="hero-title">Your Learning Journey Starts Here</h2>
-                <p class="hero-subtitle">Explore, learn, and master new skills across technology, business, academics, and more.</p>
-                <button class="cta-button" onclick="scrollToCategories()">
-                    <i class="fas fa-rocket"></i> Start Learning
-                </button>
-            </div>
-            <div class="hero-stats">
-                <div class="stat">
-                    <h3>6</h3>
-                    <p>Categories</p>
+    <!-- Main Content Container -->
+    <main class="main-container">
+        <!-- Step 1: Topic Selection -->
+        <section id="step1" class="step active">
+            <div class="step-container">
+                <div class="step-header">
+                    <h2>What would you like to learn?</h2>
+                    <p>Choose a topic that interests you or type your own</p>
                 </div>
-                <div class="stat">
-                    <h3>25+</h3>
-                    <p>Topics</p>
+                
+                <div class="topic-selection">
+                    <div class="search-container">
+                        <input type="text" id="topicSearch" placeholder="Type your topic here..." class="search-input">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    
+                    <div class="hot-topics">
+                        <h3>Hot Topics</h3>
+                        <div class="topic-grid">
+                            <div class="topic-card" data-topic="AI & Machine Learning">
+                                <i class="fas fa-robot"></i>
+                                <span>AI & Machine Learning</span>
+                            </div>
+                            <div class="topic-card" data-topic="Web Development">
+                                <i class="fas fa-code"></i>
+                                <span>Web Development</span>
+                            </div>
+                            <div class="topic-card" data-topic="Investment & Finance">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Investment & Finance</span>
+                            </div>
+                            <div class="topic-card" data-topic="Spiritual Growth">
+                                <i class="fas fa-leaf"></i>
+                                <span>Spiritual Growth</span>
+                            </div>
+                            <div class="topic-card" data-topic="Language Learning">
+                                <i class="fas fa-language"></i>
+                                <span>Language Learning</span>
+                            </div>
+                            <div class="topic-card" data-topic="Career Development">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Career Development</span>
+                            </div>
+                            <div class="topic-card" data-topic="Data Science">
+                                <i class="fas fa-database"></i>
+                                <span>Data Science</span>
+                            </div>
+                            <div class="topic-card" data-topic="Digital Marketing">
+                                <i class="fas fa-bullhorn"></i>
+                                <span>Digital Marketing</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat">
-                    <h3>∞</h3>
-                    <p>Possibilities</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="categories" class="categories">
-            <div class="container">
-                <h2 class="section-title">Learning Categories</h2>
-                <div class="categories-grid">
-                    <!-- Technology -->
-                    <div class="category-card" data-category="technology">
-                        <div class="category-icon">
-                            <i class="fas fa-laptop-code"></i>
-                        </div>
-                        <h3>Technology</h3>
-                        <p>Web Development, Data Science, Mobile Development, DevOps, Cybersecurity</p>
-                        <div class="category-topics">
-                            <span class="topic-tag">Frontend</span>
-                            <span class="topic-tag">Backend</span>
-                            <span class="topic-tag">AI/ML</span>
-                            <span class="topic-tag">Cloud</span>
-                        </div>
-                        <button class="explore-btn" onclick="exploreCategory('technology')">
-                            Explore <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-
-                    <!-- Business -->
-                    <div class="category-card" data-category="business">
-                        <div class="category-icon">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                        <h3>Business</h3>
-                        <p>Entrepreneurship, Marketing, Finance, Management, Product Management</p>
-                        <div class="category-topics">
-                            <span class="topic-tag">Startup</span>
-                            <span class="topic-tag">Marketing</span>
-                            <span class="topic-tag">Finance</span>
-                            <span class="topic-tag">Leadership</span>
-                        </div>
-                        <button class="explore-btn" onclick="exploreCategory('business')">
-                            Explore <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-
-                    <!-- Academic -->
-                    <div class="category-card" data-category="academic">
-                        <div class="category-icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <h3>Academic</h3>
-                        <p>Computer Science, Mathematics, Physics, Economics, Psychology</p>
-                        <div class="category-topics">
-                            <span class="topic-tag">CS</span>
-                            <span class="topic-tag">Math</span>
-                            <span class="topic-tag">Physics</span>
-                            <span class="topic-tag">Economics</span>
-                        </div>
-                        <button class="explore-btn" onclick="exploreCategory('academic')">
-                            Explore <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-
-                    <!-- Creative -->
-                    <div class="category-card" data-category="creative">
-                        <div class="category-icon">
-                            <i class="fas fa-palette"></i>
-                        </div>
-                        <h3>Creative</h3>
-                        <p>Design, Writing, Photography, Music, Content Creation</p>
-                        <div class="category-topics">
-                            <span class="topic-tag">UI/UX</span>
-                            <span class="topic-tag">Writing</span>
-                            <span class="topic-tag">Photo</span>
-                            <span class="topic-tag">Music</span>
-                        </div>
-                        <button class="explore-btn" onclick="exploreCategory('creative')">
-                            Explore <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-
-                    <!-- Languages -->
-                    <div class="category-card" data-category="languages">
-                        <div class="category-icon">
-                            <i class="fas fa-language"></i>
-                        </div>
-                        <h3>Languages</h3>
-                        <p>Programming Languages, Human Languages, Communication</p>
-                        <div class="category-topics">
-                            <span class="topic-tag">Python</span>
-                            <span class="topic-tag">JavaScript</span>
-                            <span class="topic-tag">English</span>
-                            <span class="topic-tag">Chinese</span>
-                        </div>
-                        <button class="explore-btn" onclick="exploreCategory('languages')">
-                            Explore <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-
-                    <!-- Personal Development -->
-                    <div class="category-card" data-category="personal-development">
-                        <div class="category-icon">
-                            <i class="fas fa-user-graduate"></i>
-                        </div>
-                        <h3>Personal Development</h3>
-                        <p>Productivity, Health, Communication, Critical Thinking</p>
-                        <div class="category-topics">
-                            <span class="topic-tag">Productivity</span>
-                            <span class="topic-tag">Health</span>
-                            <span class="topic-tag">Communication</span>
-                            <span class="topic-tag">Thinking</span>
-                        </div>
-                        <button class="explore-btn" onclick="exploreCategory('personal-development')">
-                            Explore <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
+                
+                <div class="step-actions">
+                    <button class="btn-primary" id="nextStep1" disabled>Next</button>
                 </div>
             </div>
         </section>
 
-        <section id="progress" class="progress-section">
-            <div class="container">
-                <h2 class="section-title">Your Learning Progress</h2>
-                <div class="progress-grid">
-                    <div class="progress-card">
-                        <h3>Learning Streak</h3>
-                        <div class="progress-number">0</div>
-                        <p>days in a row</p>
+        <!-- Step 2: Learning Preferences -->
+        <section id="step2" class="step">
+            <div class="step-container">
+                <div class="step-header">
+                    <h2>Tell us about your learning goals</h2>
+                    <p>Help us create the perfect learning plan for you</p>
+                </div>
+                
+                <div class="questions-container">
+                    <div class="question">
+                        <h3>What's your target level of learning?</h3>
+                        <div class="options-grid">
+                            <label class="option-card">
+                                <input type="radio" name="level" value="beginner">
+                                <div class="option-content">
+                                    <i class="fas fa-seedling"></i>
+                                    <span>Beginner</span>
+                                    <small>New to the topic</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="level" value="intermediate">
+                                <div class="option-content">
+                                    <i class="fas fa-tree"></i>
+                                    <span>Intermediate</span>
+                                    <small>Some experience</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="level" value="advanced">
+                                <div class="option-content">
+                                    <i class="fas fa-mountain"></i>
+                                    <span>Advanced</span>
+                                    <small>Looking to master</small>
+                                </div>
+                            </label>
+                        </div>
                     </div>
-                    <div class="progress-card">
-                        <h3>Topics Completed</h3>
-                        <div class="progress-number">0</div>
-                        <p>out of 25+</p>
+                    
+                    <div class="question">
+                        <h3>What's the purpose of learning?</h3>
+                        <div class="options-grid">
+                            <label class="option-card">
+                                <input type="radio" name="purpose" value="career">
+                                <div class="option-content">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span>Career Growth</span>
+                                    <small>Advance my career</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="purpose" value="personal">
+                                <div class="option-content">
+                                    <i class="fas fa-heart"></i>
+                                    <span>Personal Interest</span>
+                                    <small>For fun and curiosity</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="purpose" value="business">
+                                <div class="option-content">
+                                    <i class="fas fa-rocket"></i>
+                                    <span>Start Business</span>
+                                    <small>Entrepreneurial goals</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="purpose" value="academic">
+                                <div class="option-content">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span>Academic</span>
+                                    <small>Research or studies</small>
+                                </div>
+                            </label>
+                        </div>
                     </div>
-                    <div class="progress-card">
-                        <h3>Time Invested</h3>
-                        <div class="progress-number">0h</div>
-                        <p>total learning time</p>
+                    
+                    <div class="question">
+                        <h3>How many days would you like to spend?</h3>
+                        <div class="options-grid">
+                            <label class="option-card">
+                                <input type="radio" name="duration" value="7">
+                                <div class="option-content">
+                                    <i class="fas fa-calendar-week"></i>
+                                    <span>1 Week</span>
+                                    <small>Quick overview</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="duration" value="30">
+                                <div class="option-content">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>1 Month</span>
+                                    <small>Solid foundation</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="duration" value="90">
+                                <div class="option-content">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>3 Months</span>
+                                    <small>Deep learning</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="duration" value="180">
+                                <div class="option-content">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span>6 Months</span>
+                                    <small>Mastery level</small>
+                                </div>
+                            </label>
+                        </div>
                     </div>
+                    
+                    <div class="question">
+                        <h3>How intense would you like the learning plan to be?</h3>
+                        <div class="options-grid">
+                            <label class="option-card">
+                                <input type="radio" name="intensity" value="light">
+                                <div class="option-content">
+                                    <i class="fas fa-walking"></i>
+                                    <span>Light</span>
+                                    <small>30 min/day</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="intensity" value="moderate">
+                                <div class="option-content">
+                                    <i class="fas fa-running"></i>
+                                    <span>Moderate</span>
+                                    <small>1-2 hours/day</small>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="intensity" value="intensive">
+                                <div class="option-content">
+                                    <i class="fas fa-fire"></i>
+                                    <span>Intensive</span>
+                                    <small>3+ hours/day</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="btn-secondary" id="prevStep2">Previous</button>
+                    <button class="btn-primary" id="nextStep2" disabled>Next</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Material Selection -->
+        <section id="step3" class="step">
+            <div class="step-container">
+                <div class="step-header">
+                    <h2>Choose your learning materials</h2>
+                    <p>Select the types of content you prefer</p>
+                </div>
+                
+                <div class="materials-container">
+                    <div class="material-category">
+                        <h3><i class="fab fa-youtube"></i> Video Content</h3>
+                        <div class="material-options">
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="youtube-tutorials">
+                                <span>YouTube Tutorials</span>
+                            </label>
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="online-courses">
+                                <span>Online Courses</span>
+                            </label>
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="webinars">
+                                <span>Webinars & Live Sessions</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="material-category">
+                        <h3><i class="fas fa-book"></i> Reading Materials</h3>
+                        <div class="material-options">
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="books">
+                                <span>Books & eBooks</span>
+                            </label>
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="articles">
+                                <span>Articles & Blogs</span>
+                            </label>
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="academic-papers">
+                                <span>Academic Papers</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="material-category">
+                        <h3><i class="fas fa-project-diagram"></i> Hands-on Learning</h3>
+                        <div class="material-options">
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="projects">
+                                <span>Custom Projects</span>
+                            </label>
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="exercises">
+                                <span>Practice Exercises</span>
+                            </label>
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="challenges">
+                                <span>Coding Challenges</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="material-category">
+                        <h3><i class="fas fa-users"></i> Interactive Learning</h3>
+                        <div class="material-options">
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="coaching">
+                                <span>1-on-1 Coaching</span>
+                            </label>
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="study-groups">
+                                <span>Study Groups</span>
+                            </label>
+                            <label class="material-option">
+                                <input type="checkbox" name="materials" value="mentorship">
+                                <span>Mentorship</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="btn-secondary" id="prevStep3">Previous</button>
+                    <button class="btn-primary" id="nextStep3" disabled>Generate Plan</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: Learning Plan Preview -->
+        <section id="step4" class="step">
+            <div class="step-container">
+                <div class="step-header">
+                    <h2>Your Personalized Learning Plan</h2>
+                    <p>Based on your preferences, here's what we recommend</p>
+                </div>
+                
+                <div class="plan-preview">
+                    <div class="plan-summary">
+                        <div class="summary-card">
+                            <h3>Topic</h3>
+                            <p id="planTopic">-</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Duration</h3>
+                            <p id="planDuration">-</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Intensity</h3>
+                            <p id="planIntensity">-</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Materials</h3>
+                            <p id="planMaterials">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-timeline">
+                        <h3>Learning Timeline</h3>
+                        <div id="timelineContent">
+                            <!-- Timeline will be generated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="btn-secondary" id="prevStep4">Previous</button>
+                    <button class="btn-primary" id="registerBtn">Register to View Full Plan</button>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>LearnWhat</h3>
-                    <p>Your comprehensive learning platform for mastering new skills and knowledge.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#categories">Categories</a></li>
-                        <li><a href="#progress">Progress</a></li>
-                        <li><a href="#about">About</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Connect</h4>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                    </div>
-                </div>
+    <!-- Registration Modal -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Your Account</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 LearnWhat. Built with passion for learning.</p>
+            <div class="modal-body">
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Create Account</button>
+                </form>
             </div>
         </div>
-    </footer>
+    </div>
+
+    <!-- Dashboard (Hidden initially) -->
+    <div id="dashboard" class="dashboard hidden">
+        <div class="dashboard-header">
+            <h1>Welcome back, <span id="userName">User</span>!</h1>
+            <button class="btn-secondary" id="logoutBtn">Logout</button>
+        </div>
+        
+        <div class="dashboard-content">
+            <div class="learning-plan">
+                <h2>Your Learning Plan</h2>
+                <div class="plan-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span id="progressText">0% Complete</span>
+                </div>
+                
+                <div class="plan-checklist" id="planChecklist">
+                    <!-- Checklist items will be generated here -->
+                </div>
+            </div>
+            
+            <div class="coaches-section">
+                <h2>Available Coaches</h2>
+                <div class="coaches-grid" id="coachesGrid">
+                    <!-- Coaches will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="src/utils/main.js"></script>
 </body>

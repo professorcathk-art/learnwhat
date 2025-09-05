@@ -1,58 +1,50 @@
 # LearnWhat 🎓
 
-A comprehensive learning platform covering technology, business, academics, creative fields, languages, and personal development.
+An AI-powered learning platform that creates personalized learning plans based on your interests, goals, and preferences.
 
 ## 🌟 Features
 
-- **Modern Web Interface**: Beautiful, responsive design with smooth animations
-- **6 Main Categories**: Technology, Business, Academic, Creative, Languages, Personal Development
-- **25+ Learning Topics**: From web development to entrepreneurship
-- **Interactive Navigation**: Explore topics with detailed modals and progress tracking
-- **Search Functionality**: Find topics quickly with real-time search
-- **Progress Tracking**: Monitor your learning journey with local storage
+- **AI-Powered Learning Plans**: Get customized learning paths based on your preferences
+- **Interactive User Journey**: 4-step process to create your perfect learning plan
+- **Topic Selection**: Choose from hot topics or enter your own interests
+- **Learning Preferences**: Set your level, purpose, duration, and intensity
+- **Material Selection**: Choose from videos, books, projects, and coaching
+- **User Dashboard**: Track progress with interactive checklists
+- **Coach Marketplace**: Connect with expert coaches for personalized guidance
+- **Progress Tracking**: Monitor your learning journey with visual progress bars
 
 ## 🚀 Live Demo
 
-Open `index.html` in your browser to explore the learning platform!
+Open `index.html` in your browser to start your learning journey!
 
-## 📚 Learning Categories
+## 🎯 User Journey
 
-### Technology 💻
-- Web Development (Frontend, Backend, Full-Stack)
-- Data Science & AI/ML
-- Mobile Development
-- DevOps & Cloud Computing
-- Cybersecurity
+### Step 1: Topic Selection
+- Choose from hot topics (AI, Web Development, Investment, etc.)
+- Or type your own custom topic
+- Search functionality for easy discovery
 
-### Business 💼
-- Entrepreneurship
-- Marketing & Sales
-- Finance & Investment
-- Management & Leadership
-- Product Management
+### Step 2: Learning Preferences
+- **Level**: Beginner, Intermediate, or Advanced
+- **Purpose**: Career Growth, Personal Interest, Business, or Academic
+- **Duration**: 1 week to 6 months
+- **Intensity**: Light (30 min/day), Moderate (1-2 hours), or Intensive (3+ hours)
 
-### Academic 📖
-- Computer Science
-- Mathematics
-- Physics
-- Economics
-- Psychology
+### Step 3: Material Selection
+- **Video Content**: YouTube tutorials, online courses, webinars
+- **Reading Materials**: Books, articles, academic papers
+- **Hands-on Learning**: Custom projects, exercises, challenges
+- **Interactive Learning**: 1-on-1 coaching, study groups, mentorship
 
-### Creative 🎨
-- Design (UI/UX, Graphic Design)
-- Writing & Content Creation
-- Photography & Video
-- Music & Audio Production
+### Step 4: AI Learning Plan
+- Personalized timeline based on your preferences
+- Week-by-week breakdown of activities
+- Customized checklist for tracking progress
 
-### Languages 🌍
-- Programming Languages (Python, JavaScript, etc.)
-- Human Languages (English, Chinese, Spanish, etc.)
-
-### Personal Development 🧠
-- Productivity & Time Management
-- Health & Wellness
-- Communication Skills
-- Critical Thinking
+### Step 5: Registration & Dashboard
+- Create account to access full learning plan
+- Interactive progress tracking
+- Coach marketplace for additional support
 
 ## 🛠️ Technology Stack
 
