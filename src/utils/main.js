@@ -64,8 +64,8 @@ class LearnWhatApp {
             this.showRegistrationModal();
         });
 
-        document.getElementById('regenerateMaterials').addEventListener('click', () => {
-            this.generateLearningMaterials();
+        document.getElementById('regeneratePlan').addEventListener('click', () => {
+            this.generateLearningPlanTable();
         });
 
         // Form events
@@ -837,24 +837,144 @@ Return only the JSON array, no additional text.`;
         document.getElementById('planIntensity').textContent = this.learningPlan.intensity;
         document.getElementById('planMaterials').textContent = this.learningPlan.materials.length + ' types selected';
         
-        const timelineContent = document.getElementById('timelineContent');
-        timelineContent.innerHTML = '';
+        // Generate and display learning plan table
+        this.generateLearningPlanTable();
+    }
+
+    async generateLearningPlanTable() {
+        const tableBody = document.getElementById('learningTableBody');
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Generating your personalized learning plan...</td></tr>';
         
-        this.learningPlan.timeline.forEach(week => {
-            const timelineItem = document.createElement('div');
-            timelineItem.className = 'timeline-item';
-            timelineItem.innerHTML = `
-                <i class="fas fa-calendar-week"></i>
-                <div class="timeline-content">
-                    <h4>Week ${week.week}: ${week.title}</h4>
-                    <p>${week.activities.join(', ')}</p>
-                </div>
+        try {
+            // Get AI-generated materials
+            const aiMaterials = await this.getAIGeneratedMaterials();
+            
+            // Get fallback materials
+            const fallbackMaterials = this.getRecommendedMaterials();
+            
+            // Combine and create daily plan
+            const allMaterials = [...aiMaterials, ...fallbackMaterials];
+            const dailyPlan = this.createDailyPlan(allMaterials);
+            
+            // Display the table
+            this.displayLearningTable(dailyPlan);
+            
+        } catch (error) {
+            console.error('Error generating learning plan:', error);
+            // Fallback to static materials
+            const fallbackMaterials = this.getRecommendedMaterials();
+            const dailyPlan = this.createDailyPlan(fallbackMaterials);
+            this.displayLearningTable(dailyPlan);
+        }
+    }
+
+    createDailyPlan(materials) {
+        const duration = this.learningPlan.duration;
+        const intensity = this.learningPlan.intensity;
+        const dailyPlan = [];
+        
+        // Calculate materials per day based on intensity
+        let materialsPerDay;
+        switch (intensity) {
+            case 'light':
+                materialsPerDay = 1;
+                break;
+            case 'moderate':
+                materialsPerDay = 2;
+                break;
+            case 'intensive':
+                materialsPerDay = 3;
+                break;
+            default:
+                materialsPerDay = 2;
+        }
+        
+        // Distribute materials across days
+        let materialIndex = 0;
+        for (let day = 1; day <= duration; day++) {
+            const dayMaterials = [];
+            
+            for (let i = 0; i < materialsPerDay && materialIndex < materials.length; i++) {
+                const material = materials[materialIndex];
+                dayMaterials.push({
+                    ...material,
+                    day: day,
+                    completed: false
+                });
+                materialIndex++;
+            }
+            
+            // If no materials for this day, add a rest day or review day
+            if (dayMaterials.length === 0) {
+                dayMaterials.push({
+                    title: day % 7 === 0 ? "Weekly Review & Practice" : "Rest Day - Review Previous Materials",
+                    type: "Review",
+                    description: "Take time to review and practice what you've learned",
+                    duration: "30-60 min",
+                    difficulty: 1,
+                    url: "#",
+                    icon: "fas fa-book-open",
+                    day: day,
+                    completed: false,
+                    isRestDay: true
+                });
+            }
+            
+            dailyPlan.push(...dayMaterials);
+        }
+        
+        return dailyPlan;
+    }
+
+    displayLearningTable(dailyPlan) {
+        const tableBody = document.getElementById('learningTableBody');
+        tableBody.innerHTML = '';
+        
+        dailyPlan.forEach((material, index) => {
+            const row = document.createElement('tr');
+            row.className = material.completed ? 'completed-row' : '';
+            row.innerHTML = `
+                <td class="day-cell">Day ${material.day}</td>
+                <td class="material-cell">
+                    <a href="${material.url}" target="_blank" class="material-link">
+                        ${material.title}
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    ${material.description ? `<div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">${material.description}</div>` : ''}
+                </td>
+                <td class="type-cell">
+                    <span class="type-badge">${material.type}</span>
+                </td>
+                <td class="duration-cell">${material.duration}</td>
+                <td class="status-cell">
+                    <input type="checkbox" class="status-checkbox" ${material.completed ? 'checked' : ''} 
+                           onchange="app.toggleMaterialStatus(${index})">
+                </td>
             `;
-            timelineContent.appendChild(timelineItem);
+            tableBody.appendChild(row);
         });
         
-        // Generate and display learning materials
-        this.generateLearningMaterials();
+        // Store the daily plan for status tracking
+        this.dailyPlan = dailyPlan;
+    }
+
+    toggleMaterialStatus(index) {
+        if (this.dailyPlan && this.dailyPlan[index]) {
+            this.dailyPlan[index].completed = !this.dailyPlan[index].completed;
+            
+            // Update the row appearance
+            const rows = document.querySelectorAll('#learningTableBody tr');
+            if (rows[index]) {
+                if (this.dailyPlan[index].completed) {
+                    rows[index].classList.add('completed-row');
+                } else {
+                    rows[index].classList.remove('completed-row');
+                }
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('learnwhat-daily-plan', JSON.stringify(this.dailyPlan));
+        }
     }
 
     showRegistrationModal() {
@@ -918,25 +1038,81 @@ Return only the JSON array, no additional text.`;
     displayLearningPlan() {
         if (!this.learningPlan) return;
         
-        const completedItems = this.learningPlan.checklist.filter(item => item.completed).length;
-        const totalItems = this.learningPlan.checklist.length;
-        const progressPercentage = (completedItems / totalItems) * 100;
+        // Load daily plan from localStorage if available
+        const savedDailyPlan = localStorage.getItem('learnwhat-daily-plan');
+        if (savedDailyPlan) {
+            this.dailyPlan = JSON.parse(savedDailyPlan);
+        }
         
-        document.getElementById('progressFill').style.width = `${progressPercentage}%`;
-        document.getElementById('progressText').textContent = `${Math.round(progressPercentage)}% Complete`;
-        
+        if (this.dailyPlan) {
+            // Calculate progress from daily plan
+            const completedItems = this.dailyPlan.filter(item => item.completed).length;
+            const totalItems = this.dailyPlan.length;
+            const progressPercentage = (completedItems / totalItems) * 100;
+            
+            document.getElementById('progressFill').style.width = `${progressPercentage}%`;
+            document.getElementById('progressText').textContent = `${Math.round(progressPercentage)}% Complete`;
+            
+            // Display daily plan in dashboard
+            this.displayDashboardTable();
+        } else {
+            // Fallback to old checklist system
+            const completedItems = this.learningPlan.checklist.filter(item => item.completed).length;
+            const totalItems = this.learningPlan.checklist.length;
+            const progressPercentage = (completedItems / totalItems) * 100;
+            
+            document.getElementById('progressFill').style.width = `${progressPercentage}%`;
+            document.getElementById('progressText').textContent = `${Math.round(progressPercentage)}% Complete`;
+            
+            const checklistContainer = document.getElementById('planChecklist');
+            checklistContainer.innerHTML = '';
+            
+            this.learningPlan.checklist.forEach(item => {
+                const checklistItem = document.createElement('div');
+                checklistItem.className = `checklist-item ${item.completed ? 'completed' : ''}`;
+                checklistItem.innerHTML = `
+                    <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="app.toggleChecklistItem(${item.id})">
+                    <span class="checklist-text">${item.title}</span>
+                `;
+                checklistContainer.appendChild(checklistItem);
+            });
+        }
+    }
+
+    displayDashboardTable() {
         const checklistContainer = document.getElementById('planChecklist');
         checklistContainer.innerHTML = '';
         
-        this.learningPlan.checklist.forEach(item => {
-            const checklistItem = document.createElement('div');
-            checklistItem.className = `checklist-item ${item.completed ? 'completed' : ''}`;
-            checklistItem.innerHTML = `
-                <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="app.toggleChecklistItem(${item.id})">
-                <span class="checklist-text">${item.title}</span>
-            `;
-            checklistContainer.appendChild(checklistItem);
-        });
+        // Create a simplified table for dashboard
+        const table = document.createElement('table');
+        table.className = 'dashboard-table';
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Material</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${this.dailyPlan.map((material, index) => `
+                    <tr class="${material.completed ? 'completed-row' : ''}">
+                        <td>Day ${material.day}</td>
+                        <td>
+                            <a href="${material.url}" target="_blank" class="material-link">
+                                ${material.title}
+                            </a>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="status-checkbox" ${material.completed ? 'checked' : ''} 
+                                   onchange="app.toggleMaterialStatus(${index})">
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        `;
+        
+        checklistContainer.appendChild(table);
     }
 
     toggleChecklistItem(itemId) {

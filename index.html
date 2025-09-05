@@ -353,22 +353,28 @@
                         </div>
                     </div>
                     
-                    <div class="plan-timeline">
-                        <h3>Learning Timeline</h3>
-                        <div id="timelineContent">
-                            <!-- Timeline will be generated here -->
-                        </div>
-                    </div>
-                    
-                    <div class="learning-materials">
-                        <div class="materials-header">
-                            <h3>Recommended Learning Materials</h3>
-                            <button class="btn-secondary" id="regenerateMaterials">
-                                <i class="fas fa-sync-alt"></i> Generate New Materials
+                    <div class="learning-plan-table">
+                        <div class="plan-header">
+                            <h3>Your Daily Learning Plan</h3>
+                            <button class="btn-secondary" id="regeneratePlan">
+                                <i class="fas fa-sync-alt"></i> Regenerate Plan
                             </button>
                         </div>
-                        <div class="materials-grid" id="materialsGrid">
-                            <!-- Learning materials will be generated here -->
+                        <div class="table-container">
+                            <table class="learning-table" id="learningTable">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Learning Material</th>
+                                        <th>Type</th>
+                                        <th>Duration</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="learningTableBody">
+                                    <!-- Learning plan will be generated here -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
