@@ -571,42 +571,143 @@
         </div>
     </div>
 
-    <!-- Dashboard (Hidden initially) -->
-    <div id="dashboard" class="dashboard hidden">
-        <div class="dashboard-header">
-            <h1>Welcome back, <span id="userName">User</span>!</h1>
-            <button class="btn-secondary" id="logoutBtn">Logout</button>
+    <!-- User Portal (Hidden initially) -->
+    <div id="userPortal" class="user-portal hidden">
+        <div class="portal-header">
+            <div class="portal-nav">
+                <h1><i class="fas fa-graduation-cap"></i> LearnWhat</h1>
+                <div class="user-info">
+                    <span>Welcome back, <strong id="userName">User</strong>!</span>
+                    <button class="btn-secondary" id="logoutBtn">Logout</button>
+                </div>
+            </div>
         </div>
         
-        <div class="dashboard-content">
-            <div class="learning-plan">
-                <h2>Your Learning Plan</h2>
-                <div class="plan-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <span id="progressText">0% Complete</span>
-                </div>
-                
-                <div class="plan-visualization">
-                    <h3>Learning Timeline</h3>
-                    <div class="timeline-container" id="timelineContainer">
-                        <!-- Timeline will be generated here -->
-                    </div>
-                </div>
-                
-                <div class="plan-checklist" id="planChecklist">
-                    <!-- Checklist items will be generated here -->
+        <div class="portal-content">
+            <div class="portal-sidebar">
+                <div class="sidebar-section">
+                    <h3>My Learning</h3>
+                    <ul class="sidebar-menu">
+                        <li class="active" data-section="dashboard">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </li>
+                        <li data-section="plans">
+                            <i class="fas fa-list-alt"></i>
+                            <span>My Plans</span>
+                        </li>
+                        <li data-section="create">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Create New Plan</span>
+                        </li>
+                        <li data-section="progress">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Progress</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
             
-            <!-- Coaches section hidden for MVP stage -->
-            <!-- <div class="coaches-section">
-                <h2>Available Coaches</h2>
-                <div class="coaches-grid" id="coachesGrid">
-                    <!-- Coaches will be loaded here -->
+            <div class="portal-main">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection" class="portal-section active">
+                    <div class="section-header">
+                        <h2>Dashboard</h2>
+                        <p>Overview of your learning journey</p>
+                    </div>
+                    
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalPlans">0</h3>
+                                <p>Learning Plans</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="completedItems">0</h3>
+                                <p>Completed Items</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="studyStreak">0</h3>
+                                <p>Day Streak</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div id="recentActivityList" class="activity-list">
+                            <!-- Recent activity will be loaded here -->
+                        </div>
+                    </div>
                 </div>
-            </div> -->
+                
+                <!-- My Plans Section -->
+                <div id="plansSection" class="portal-section">
+                    <div class="section-header">
+                        <h2>My Learning Plans</h2>
+                        <p>Manage and track your learning plans</p>
+                    </div>
+                    
+                    <div id="plansList" class="plans-grid">
+                        <!-- Learning plans will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Create New Plan Section -->
+                <div id="createSection" class="portal-section">
+                    <div class="section-header">
+                        <h2>Create New Learning Plan</h2>
+                        <p>Start a new learning journey</p>
+                    </div>
+                    
+                    <div class="create-plan-options">
+                        <div class="create-option" onclick="app.startNewPlan()">
+                            <div class="option-icon">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <h3>AI-Powered Plan</h3>
+                            <p>Get a personalized learning plan created by our AI</p>
+                            <button class="btn-primary">Create with AI</button>
+                        </div>
+                        
+                        <div class="create-option" onclick="app.startCustomPlan()">
+                            <div class="option-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h3>Custom Plan</h3>
+                            <p>Build your own learning plan from scratch</p>
+                            <button class="btn-secondary">Create Custom</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Section -->
+                <div id="progressSection" class="portal-section">
+                    <div class="section-header">
+                        <h2>Learning Progress</h2>
+                        <p>Track your learning achievements</p>
+                    </div>
+                    
+                    <div class="progress-overview">
+                        <div class="current-plan" id="currentPlanSection">
+                            <!-- Current plan progress will be shown here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

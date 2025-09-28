@@ -100,6 +100,13 @@ class LearnWhatApp {
             this.logout();
         });
 
+        // Portal navigation
+        document.querySelectorAll('.sidebar-menu li').forEach(item => {
+            item.addEventListener('click', () => {
+                this.switchPortalSection(item.dataset.section);
+            });
+        });
+
         // Modal close
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
@@ -1850,16 +1857,19 @@ Return only the JSON array, no additional text.`;
         localStorage.setItem('learnwhat-user', JSON.stringify(this.currentUser));
         localStorage.setItem('learnwhat-plan', JSON.stringify(this.learningPlan));
         
+        // Save plan to user's plan collection
+        this.savePlanToUserCollection();
+        
         this.closeModal();
         this.showDashboard();
     }
 
     showDashboard() {
         document.querySelector('.main-container').style.display = 'none';
-        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('userPortal').classList.remove('hidden');
         
         document.getElementById('userName').textContent = this.currentUser.name;
-        this.loadDashboardData();
+        this.loadUserPortalData();
     }
 
     loadDashboardData() {
@@ -2036,7 +2046,7 @@ Return only the JSON array, no additional text.`;
         localStorage.removeItem('learnwhat-user');
         
         document.querySelector('.main-container').style.display = 'block';
-        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('userPortal').classList.add('hidden');
         
         this.currentStep = 1;
         this.updateStepVisibility();
@@ -2048,6 +2058,319 @@ Return only the JSON array, no additional text.`;
             this.currentUser = JSON.parse(savedUser);
             this.showDashboard();
         }
+    }
+
+    // User Portal Methods
+    loadUserPortalData() {
+        this.loadDashboardData();
+        this.updateDashboardStats();
+        this.loadUserPlans();
+        this.loadRecentActivity();
+    }
+
+    switchPortalSection(sectionName) {
+        // Update sidebar active state
+        document.querySelectorAll('.sidebar-menu li').forEach(item => {
+            item.classList.remove('active');
+        });
+        document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+
+        // Update main content
+        document.querySelectorAll('.portal-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(`${sectionName}Section`).classList.add('active');
+
+        // Load section-specific data
+        switch(sectionName) {
+            case 'dashboard':
+                this.updateDashboardStats();
+                this.loadRecentActivity();
+                break;
+            case 'plans':
+                this.loadUserPlans();
+                break;
+            case 'progress':
+                this.loadProgressOverview();
+                break;
+        }
+    }
+
+    updateDashboardStats() {
+        const plans = this.getUserPlans();
+        const totalPlans = plans.length;
+        const completedItems = this.getTotalCompletedItems();
+        const studyStreak = this.calculateStudyStreak();
+
+        document.getElementById('totalPlans').textContent = totalPlans;
+        document.getElementById('completedItems').textContent = completedItems;
+        document.getElementById('studyStreak').textContent = studyStreak;
+    }
+
+    getUserPlans() {
+        const savedPlans = localStorage.getItem('learnwhat-user-plans');
+        return savedPlans ? JSON.parse(savedPlans) : [];
+    }
+
+    getTotalCompletedItems() {
+        const plans = this.getUserPlans();
+        let totalCompleted = 0;
+        
+        plans.forEach(plan => {
+            if (plan.dailyPlan) {
+                totalCompleted += plan.dailyPlan.filter(item => item.completed).length;
+            }
+        });
+        
+        return totalCompleted;
+    }
+
+    calculateStudyStreak() {
+        // Simple streak calculation based on recent activity
+        const activities = this.getRecentActivities();
+        let streak = 0;
+        const today = new Date();
+        
+        for (let i = 0; i < 30; i++) {
+            const checkDate = new Date(today);
+            checkDate.setDate(today.getDate() - i);
+            const dateStr = checkDate.toDateString();
+            
+            if (activities.some(activity => activity.date === dateStr)) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        
+        return streak;
+    }
+
+    loadUserPlans() {
+        const plans = this.getUserPlans();
+        const plansList = document.getElementById('plansList');
+        
+        if (plans.length === 0) {
+            plansList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3>No Learning Plans Yet</h3>
+                    <p>Create your first learning plan to get started on your journey!</p>
+                    <button class="btn-primary" onclick="app.switchPortalSection('create')">
+                        Create New Plan
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        plansList.innerHTML = plans.map((plan, index) => {
+            const progress = this.calculatePlanProgress(plan);
+            const status = progress === 100 ? 'completed' : 'active';
+            
+            return `
+                <div class="plan-card" onclick="app.viewPlan(${index})">
+                    <div class="plan-card-header">
+                        <h3 class="plan-title">${plan.topic}</h3>
+                        <span class="plan-status ${status}">${status === 'completed' ? 'Completed' : 'Active'}</span>
+                    </div>
+                    <div class="plan-meta">
+                        <span><i class="fas fa-calendar"></i> ${plan.duration} days</span>
+                        <span><i class="fas fa-signal"></i> ${plan.intensity}</span>
+                    </div>
+                    <div class="plan-progress">
+                        <div class="plan-progress-bar">
+                            <div class="plan-progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="plan-progress-text">${progress}% Complete</div>
+                    </div>
+                    <div class="plan-actions">
+                        <button class="btn-primary" onclick="event.stopPropagation(); app.continuePlan(${index})">
+                            ${status === 'completed' ? 'Review' : 'Continue'}
+                        </button>
+                        <button class="btn-secondary" onclick="event.stopPropagation(); app.deletePlan(${index})">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    calculatePlanProgress(plan) {
+        if (!plan.dailyPlan || plan.dailyPlan.length === 0) return 0;
+        
+        const completed = plan.dailyPlan.filter(item => item.completed).length;
+        const total = plan.dailyPlan.length;
+        
+        return Math.round((completed / total) * 100);
+    }
+
+    loadRecentActivity() {
+        const activities = this.getRecentActivities();
+        const activityList = document.getElementById('recentActivityList');
+        
+        if (activities.length === 0) {
+            activityList.innerHTML = `
+                <div class="empty-state">
+                    <p>No recent activity. Start learning to see your progress here!</p>
+                </div>
+            `;
+            return;
+        }
+
+        activityList.innerHTML = activities.slice(0, 5).map(activity => `
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="${activity.icon}"></i>
+                </div>
+                <div class="activity-content">
+                    <h4>${activity.title}</h4>
+                    <p>${activity.description}</p>
+                </div>
+                <div class="activity-time">${activity.time}</div>
+            </div>
+        `).join('');
+    }
+
+    getRecentActivities() {
+        const savedActivities = localStorage.getItem('learnwhat-recent-activities');
+        return savedActivities ? JSON.parse(savedActivities) : [];
+    }
+
+    addRecentActivity(title, description, icon = 'fas fa-check-circle') {
+        const activities = this.getRecentActivities();
+        const newActivity = {
+            title,
+            description,
+            icon,
+            date: new Date().toDateString(),
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        };
+        
+        activities.unshift(newActivity);
+        activities.splice(10); // Keep only last 10 activities
+        
+        localStorage.setItem('learnwhat-recent-activities', JSON.stringify(activities));
+    }
+
+    loadProgressOverview() {
+        const currentPlan = this.learningPlan;
+        const currentPlanSection = document.getElementById('currentPlanSection');
+        
+        if (!currentPlan) {
+            currentPlanSection.innerHTML = `
+                <div class="empty-state">
+                    <h3>No Active Plan</h3>
+                    <p>Create a learning plan to start tracking your progress!</p>
+                    <button class="btn-primary" onclick="app.switchPortalSection('create')">
+                        Create New Plan
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        const progress = this.calculatePlanProgress(currentPlan);
+        
+        currentPlanSection.innerHTML = `
+            <div class="current-plan-details">
+                <h3>Current Plan: ${currentPlan.topic}</h3>
+                <div class="plan-progress">
+                    <div class="plan-progress-bar">
+                        <div class="plan-progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="plan-progress-text">${progress}% Complete</div>
+                </div>
+                <div class="plan-timeline">
+                    ${this.generateTimelineHTML(currentPlan)}
+                </div>
+            </div>
+        `;
+    }
+
+    generateTimelineHTML(plan) {
+        if (!plan.dailyPlan) return '<p>No timeline available</p>';
+        
+        const timeline = document.createElement('div');
+        timeline.className = 'timeline';
+        
+        // Show first 10 days for overview
+        const daysToShow = plan.dailyPlan.slice(0, 10);
+        
+        return daysToShow.map((material, index) => `
+            <div class="timeline-item ${material.completed ? 'completed' : ''}">
+                <div class="timeline-content">
+                    <div class="timeline-day">Day ${material.day}</div>
+                    <div class="timeline-title">${material.title}</div>
+                    <div class="timeline-type">${material.type}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Plan management methods
+    startNewPlan() {
+        // Reset to step 1 and show main container
+        document.getElementById('userPortal').classList.add('hidden');
+        document.querySelector('.main-container').style.display = 'block';
+        this.currentStep = 1;
+        this.updateStepVisibility();
+    }
+
+    startCustomPlan() {
+        // For now, same as AI plan - can be extended later
+        this.startNewPlan();
+    }
+
+    viewPlan(planIndex) {
+        const plans = this.getUserPlans();
+        const plan = plans[planIndex];
+        
+        if (plan) {
+            this.learningPlan = plan;
+            this.dailyPlan = plan.dailyPlan;
+            this.switchPortalSection('progress');
+        }
+    }
+
+    continuePlan(planIndex) {
+        this.viewPlan(planIndex);
+        this.switchPortalSection('dashboard');
+    }
+
+    deletePlan(planIndex) {
+        if (confirm('Are you sure you want to delete this learning plan?')) {
+            const plans = this.getUserPlans();
+            plans.splice(planIndex, 1);
+            localStorage.setItem('learnwhat-user-plans', JSON.stringify(plans));
+            this.loadUserPlans();
+            this.updateDashboardStats();
+        }
+    }
+
+    savePlanToUserCollection() {
+        if (!this.learningPlan) return;
+        
+        const plans = this.getUserPlans();
+        const planToSave = {
+            ...this.learningPlan,
+            dailyPlan: this.dailyPlan,
+            createdAt: new Date().toISOString(),
+            id: Date.now().toString()
+        };
+        
+        plans.push(planToSave);
+        localStorage.setItem('learnwhat-user-plans', JSON.stringify(plans));
+        
+        // Add to recent activity
+        this.addRecentActivity(
+            `Created new plan: ${this.learningPlan.topic}`,
+            `${this.learningPlan.duration} days, ${this.learningPlan.intensity} intensity`,
+            'fas fa-plus-circle'
+        );
     }
 }
 
