@@ -365,6 +365,8 @@ class LearnWhatApp {
 
     async getAIGeneratedMaterials() {
         const prompt = this.createMaterialsPrompt();
+        console.log('🤖 Calling AI API to generate materials...');
+        console.log('📝 Prompt:', prompt);
         
         try {
             const response = await fetch('https://api.aimlapi.com/v1/chat/completions', {
@@ -374,7 +376,7 @@ class LearnWhatApp {
                     'Authorization': 'Bearer ce74038095d6469184af3b39e3eca7b3'
                 },
                 body: JSON.stringify({
-                    model: 'gpt-4o',
+                    model: 'openai/gpt-4o',
                     messages: [
                         {
                             role: 'system',
@@ -391,14 +393,18 @@ class LearnWhatApp {
             });
 
             if (!response.ok) {
+                console.error('❌ API request failed:', response.status, response.statusText);
                 throw new Error(`API request failed: ${response.status}`);
             }
 
             const data = await response.json();
+            console.log('✅ AI API Response received:', data);
             const content = data.choices[0].message.content;
+            console.log('📄 AI Generated Content:', content);
             
             // Parse the JSON response
             const materials = JSON.parse(content);
+            console.log('🎯 Parsed AI Materials:', materials);
             
             // Add AI generated flag and ensure proper structure
             return materials.map(material => ({
@@ -409,7 +415,8 @@ class LearnWhatApp {
             }));
             
         } catch (error) {
-            console.error('Error calling AI API:', error);
+            console.error('❌ Error calling AI API:', error);
+            console.log('🔄 Falling back to static materials...');
             return [];
         }
     }
@@ -1489,26 +1496,37 @@ Return only the JSON array, no additional text.`;
         const tableBody = document.getElementById('learningTableBody');
         tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Generating your personalized learning plan...</td></tr>';
         
+        console.log('🚀 Starting learning plan generation...');
+        
         try {
             // Get AI-generated materials
+            console.log('📚 Fetching AI-generated materials...');
             const aiMaterials = await this.getAIGeneratedMaterials();
+            console.log(`📊 AI Materials count: ${aiMaterials.length}`);
             
             // Get fallback materials
+            console.log('📖 Fetching fallback materials...');
             const fallbackMaterials = this.getRecommendedMaterials();
+            console.log(`📊 Fallback Materials count: ${fallbackMaterials.length}`);
             
             // Combine and create daily plan
             const allMaterials = [...aiMaterials, ...fallbackMaterials];
+            console.log(`📊 Total Materials count: ${allMaterials.length}`);
             const dailyPlan = this.createDailyPlan(allMaterials);
+            console.log(`📅 Daily Plan created with ${dailyPlan.length} items`);
             
             // Display the table
             this.displayLearningTable(dailyPlan);
+            console.log('✅ Learning plan table displayed successfully');
             
         } catch (error) {
-            console.error('Error generating learning plan:', error);
+            console.error('❌ Error generating learning plan:', error);
+            console.log('🔄 Falling back to static materials only...');
             // Fallback to static materials
             const fallbackMaterials = this.getRecommendedMaterials();
             const dailyPlan = this.createDailyPlan(fallbackMaterials);
             this.displayLearningTable(dailyPlan);
+            console.log('✅ Fallback learning plan displayed');
         }
     }
 
@@ -1638,9 +1656,83 @@ Return only the JSON array, no additional text.`;
                 }
             }
             
+            // Update progress bar
+            this.updateProgressBar();
+            
+            // Update timeline
+            this.displayTimeline();
+            
             // Save to localStorage
             localStorage.setItem('learnwhat-daily-plan', JSON.stringify(this.dailyPlan));
         }
+    }
+
+    updateProgressBar() {
+        if (!this.dailyPlan) return;
+        
+        const completedItems = this.dailyPlan.filter(item => item.completed).length;
+        const totalItems = this.dailyPlan.length;
+        const progressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+        
+        // Update progress bar in dashboard
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        
+        if (progressFill && progressText) {
+            progressFill.style.width = `${progressPercentage}%`;
+            progressText.textContent = `${Math.round(progressPercentage)}% Complete`;
+        }
+    }
+
+    displayTimeline() {
+        if (!this.dailyPlan) return;
+        
+        const timelineContainer = document.getElementById('timelineContainer');
+        if (!timelineContainer) return;
+        
+        // Group materials by day and get unique days
+        const daysMap = new Map();
+        this.dailyPlan.forEach(material => {
+            if (!daysMap.has(material.day)) {
+                daysMap.set(material.day, []);
+            }
+            daysMap.get(material.day).push(material);
+        });
+        
+        const uniqueDays = Array.from(daysMap.keys()).sort((a, b) => a - b);
+        const maxDays = Math.min(uniqueDays.length, 20); // Show max 20 days for readability
+        const selectedDays = uniqueDays.slice(0, maxDays);
+        
+        // Find current day (first incomplete day)
+        const currentDay = this.dailyPlan.find(item => !item.completed)?.day || selectedDays[selectedDays.length - 1];
+        
+        const timeline = document.createElement('div');
+        timeline.className = 'timeline';
+        
+        selectedDays.forEach(day => {
+            const dayMaterials = daysMap.get(day);
+            const isCompleted = dayMaterials.every(material => material.completed);
+            const isCurrent = day === currentDay && !isCompleted;
+            
+            const timelineItem = document.createElement('div');
+            timelineItem.className = `timeline-item ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`;
+            
+            // Get the first material for this day as representative
+            const representativeMaterial = dayMaterials[0];
+            
+            timelineItem.innerHTML = `
+                <div class="timeline-content">
+                    <div class="timeline-day">Day ${day}</div>
+                    <div class="timeline-title">${representativeMaterial.title}</div>
+                    <div class="timeline-type">${representativeMaterial.type}</div>
+                </div>
+            `;
+            
+            timeline.appendChild(timelineItem);
+        });
+        
+        timelineContainer.innerHTML = '';
+        timelineContainer.appendChild(timeline);
     }
 
     showMaterialPreview(index) {
@@ -1765,7 +1857,7 @@ Return only the JSON array, no additional text.`;
         if (savedPlan) {
             this.learningPlan = JSON.parse(savedPlan);
             this.displayLearningPlan();
-            this.loadCoaches();
+            // this.loadCoaches(); // Hidden for MVP stage
         }
     }
 
@@ -1779,13 +1871,11 @@ Return only the JSON array, no additional text.`;
         }
         
         if (this.dailyPlan) {
-            // Calculate progress from daily plan
-            const completedItems = this.dailyPlan.filter(item => item.completed).length;
-            const totalItems = this.dailyPlan.length;
-            const progressPercentage = (completedItems / totalItems) * 100;
+            // Update progress bar
+            this.updateProgressBar();
             
-            document.getElementById('progressFill').style.width = `${progressPercentage}%`;
-            document.getElementById('progressText').textContent = `${Math.round(progressPercentage)}% Complete`;
+            // Display timeline
+            this.displayTimeline();
             
             // Display daily plan in dashboard
             this.displayDashboardTable();
