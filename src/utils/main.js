@@ -396,19 +396,22 @@ class LearnWhatApp {
                     'Authorization': 'Bearer ce74038095d6469184af3b39e3eca7b3'
                 },
                 body: JSON.stringify({
-                    model: 'openai/gpt-4o',
+                    model: 'perplexity/sonar-pro',
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are an expert learning advisor. Generate personalized learning materials based on user preferences. CRITICAL: Only suggest REAL, EXISTING learning resources with VALID URLs. NO fake URLs like "https://example.com" or made-up resources. First, consider 20 real potential resources, then select the most relevant 4-8 based on time constraints and learning goals. Return ONLY a valid JSON array of selected learning materials with the following structure: [{"title": "Actual Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://real-working-url.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
+                            content: 'You are an expert learning advisor with access to real-time information. Use your knowledge base to find ACTUAL, CURRENT learning resources that exist and are accessible. Search for real courses, books, videos, and tutorials from reputable platforms. Return ONLY a valid JSON array of learning materials with the following structure: [{"title": "Actual Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://real-working-url.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
                         },
                         {
                             role: 'user',
                             content: prompt
                         }
                     ],
+                    temperature: 0.3,
+                    top_p: 0.7,
+                    frequency_penalty: 1,
                     max_tokens: 2000,
-                    temperature: 0.7
+                    top_k: 50
                 })
             });
 
@@ -447,10 +450,20 @@ class LearnWhatApp {
                     'test.com',
                     'demo.com',
                     'sample.com',
+                    'localhost',
+                    '127.0.0.1',
+                    '0.0.0.0',
                     '#',
                     'javascript:',
                     'mailto:',
-                    'tel:'
+                    'tel:',
+                    'data:',
+                    'file:',
+                    'ftp:',
+                    'about:',
+                    'chrome:',
+                    'edge:',
+                    'mozilla:'
                 ];
                 
                 const isFakeUrl = fakeUrlPatterns.some(pattern => 
@@ -458,7 +471,10 @@ class LearnWhatApp {
                 );
                 
                 // Must have a valid URL and not be fake
-                return url && !isFakeUrl && (url.startsWith('http://') || url.startsWith('https://'));
+                return url && 
+                       !isFakeUrl && 
+                       (url.startsWith('http://') || url.startsWith('https://')) &&
+                       url.length > 10; // Basic length check
             });
             
             console.log('🔍 Filtered Valid Materials:', validMaterials);
@@ -487,7 +503,7 @@ class LearnWhatApp {
     createMaterialsPrompt() {
         const { topic, description, level, purpose, duration, intensity, materials } = this.learningPlan;
         
-        return `Generate a comprehensive list of REAL, ACCESSIBLE learning materials for someone who wants to learn "${topic}" at a "${level}" level.
+        return `Search for and find REAL, CURRENTLY ACCESSIBLE learning materials for someone who wants to learn "${topic}" at a "${level}" level.
 
 User Details:
 - Topic: ${topic}
@@ -498,29 +514,21 @@ User Details:
 - Intensity: ${intensity}
 - Preferred Material Types: ${materials.join(', ')}
 
-CRITICAL REQUIREMENTS:
-- ONLY suggest REAL, EXISTING learning resources that are currently accessible on the internet
-- ALL URLs must be valid and working links to actual courses, books, videos, or resources
-- NO fake, placeholder, or example URLs (like "https://example.com")
-- NO made-up course names or resources that don't exist
-- Focus on well-known, reputable platforms and resources
+SEARCH REQUIREMENTS:
+- Use your real-time search capabilities to find ACTUAL, CURRENT learning resources
+- Verify that URLs are real and accessible before including them
+- Search for resources from reputable platforms like Coursera, edX, Udemy, Khan Academy, YouTube, FreeCodeCamp, etc.
+- Look for real books on Amazon, Google Books, and other legitimate platforms
+- Find actual GitHub repositories, official documentation, and real tutorials
+- Ensure all suggested resources are currently available and accessible
 
-Please provide exactly 20 REAL, high-quality learning resources that are relevant to their specific learning goals. After generating all 20 resources, intelligently select the most appropriate ones based on:
+Please search for and provide exactly 20 REAL, high-quality learning resources that are relevant to their specific learning goals. After finding all 20 resources, intelligently select the most appropriate ones based on:
 1. Relevance to their specific learning goals: "${description}"
 2. Time constraints (${duration} days with ${intensity} intensity)
 3. Learning progression (beginner to advanced)
 4. Material type preferences
 5. Difficulty level appropriateness
-6. AVAILABILITY and ACCESSIBILITY of the resource
-
-Include a diverse mix of REAL resources from:
-- Coursera, edX, Udemy, Khan Academy, YouTube
-- FreeCodeCamp, Codecademy, Pluralsight
-- MIT OpenCourseWare, Stanford Online, Harvard Online
-- Real books available on Amazon, Google Books, or library platforms
-- Official documentation and tutorials from software companies
-- GitHub repositories with actual projects
-- Real podcasts, blogs, and articles from reputable sources
+6. CURRENT AVAILABILITY and ACCESSIBILITY of the resource
 
 For each of the 20 resources, include:
 - Title and type (use the ACTUAL title from the real resource)
@@ -531,7 +539,7 @@ For each of the 20 resources, include:
 - Relevance score (1-10, where 10 is most relevant to their goals)
 - Learning outcome (what they will actually achieve from this real resource)
 - Prerequisites (if any, based on the actual resource requirements)
-- VALID URL (must be a real, working link to the actual resource)
+- VERIFIED URL (must be a real, working link that you have confirmed exists)
 
 After providing all 20 REAL resources, select the most relevant 4-8 resources that best fit their ${duration}-day learning timeline and ${intensity} intensity level. Consider the total time commitment and ensure a logical learning progression.
 
