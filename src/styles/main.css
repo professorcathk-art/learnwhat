@@ -512,6 +512,47 @@ body {
     color: var(--text-light);
 }
 
+.description-container {
+    margin-bottom: 2rem;
+}
+
+.description-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.description-label i {
+    color: var(--primary-color);
+}
+
+.description-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.3s ease;
+}
+
+.description-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.description-input::placeholder {
+    color: var(--text-light);
+}
+
 .hot-topics h3 {
     margin-bottom: 1.5rem;
     color: var(--text-primary);
@@ -942,10 +983,13 @@ body {
     overflow-x: auto;
     border-radius: 8px;
     border: 1px solid var(--border-color);
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 .learning-table {
     width: 100%;
+    min-width: 800px;
     border-collapse: collapse;
     background: var(--bg-primary);
     font-size: 0.9rem;
@@ -1352,8 +1396,14 @@ body {
 
 /* User Portal */
 .user-portal {
-    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: var(--bg-secondary);
+    z-index: 1000;
+    overflow-y: auto;
 }
 
 .user-portal.hidden {
@@ -1402,6 +1452,7 @@ body {
     display: grid;
     grid-template-columns: 250px 1fr;
     min-height: calc(100vh - 80px);
+    height: calc(100vh - 80px);
 }
 
 .portal-sidebar {
@@ -2292,11 +2343,32 @@ body {
     
     .learning-table {
         font-size: 0.8rem;
+        min-width: 600px;
     }
     
     .learning-table th,
     .learning-table td {
         padding: 0.75rem 0.5rem;
+    }
+    
+    .material-cell {
+        min-width: 200px;
+    }
+    
+    .day-cell {
+        min-width: 60px;
+    }
+    
+    .type-cell {
+        min-width: 80px;
+    }
+    
+    .duration-cell {
+        min-width: 80px;
+    }
+    
+    .status-cell {
+        min-width: 60px;
     }
     
     .preview-actions {

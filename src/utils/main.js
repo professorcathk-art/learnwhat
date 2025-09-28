@@ -5,6 +5,7 @@ class LearnWhatApp {
         this.currentStep = 1;
         this.userData = {
             topic: '',
+            description: '',
             level: '',
             purpose: '',
             duration: '',
@@ -27,6 +28,12 @@ class LearnWhatApp {
         // Topic selection
         document.getElementById('topicSearch').addEventListener('input', (e) => {
             this.handleTopicSearch(e.target.value);
+        });
+
+        // Description field
+        document.getElementById('learningDescription').addEventListener('input', (e) => {
+            this.userData.description = e.target.value.trim();
+            this.updateStep1Validation();
         });
 
         document.querySelectorAll('.topic-card').forEach(card => {
@@ -66,6 +73,11 @@ class LearnWhatApp {
 
         document.getElementById('regeneratePlan').addEventListener('click', () => {
             this.generateLearningPlanTable();
+        });
+
+        // Back to portal button
+        document.getElementById('backToPortal').addEventListener('click', () => {
+            this.returnToPortal();
         });
 
         // Form events
@@ -131,7 +143,7 @@ class LearnWhatApp {
 
     updateStep1Validation() {
         const nextBtn = document.getElementById('nextStep1');
-        nextBtn.disabled = !this.userData.topic;
+        nextBtn.disabled = !(this.userData.topic && this.userData.description);
     }
 
     updateStep2Validation() {
@@ -439,19 +451,22 @@ class LearnWhatApp {
     }
 
     createMaterialsPrompt() {
-        const { topic, level, purpose, duration, intensity, materials } = this.learningPlan;
+        const { topic, description, level, purpose, duration, intensity, materials } = this.learningPlan;
         
-        return `Generate personalized learning materials for someone who wants to learn "${topic}" at a "${level}" level. 
+        return `Generate personalized learning materials for someone who wants to learn "${topic}" at a "${level}" level.
 
 User Details:
 - Topic: ${topic}
+- Learning Goals: ${description}
 - Level: ${level}
 - Purpose: ${purpose}
 - Duration: ${duration} days
 - Intensity: ${intensity}
 - Preferred Material Types: ${materials.join(', ')}
 
-Please recommend 4-6 high-quality learning resources that match their preferences. Include a mix of:
+Please recommend 4-6 high-quality learning resources that match their specific learning goals and preferences. The user has provided detailed information about what they want to learn, so tailor the recommendations to their specific needs.
+
+Include a mix of:
 - Online courses or tutorials
 - Books or articles
 - Hands-on projects or exercises
@@ -467,12 +482,13 @@ For each recommendation, include:
 - Relevant URL if available
 
 Make sure the recommendations are:
-1. Appropriate for their skill level
-2. Match their learning purpose
-3. Fit their time commitment
-4. Include the material types they prefer
-5. Are from reputable sources
-6. Include both free and paid options when relevant
+1. Directly relevant to their specific learning goals: "${description}"
+2. Appropriate for their skill level
+3. Match their learning purpose
+4. Fit their time commitment
+5. Include the material types they prefer
+6. Are from reputable sources
+7. Include both free and paid options when relevant
 
 Return only the JSON array, no additional text.`;
     }
@@ -1552,57 +1568,95 @@ Return only the JSON array, no additional text.`;
         const intensity = this.learningPlan.intensity;
         const dailyPlan = [];
         
-        // Calculate materials per day based on intensity
-        let materialsPerDay;
-        switch (intensity) {
-            case 'light':
-                materialsPerDay = 1;
-                break;
-            case 'moderate':
-                materialsPerDay = 2;
-                break;
-            case 'intensive':
-                materialsPerDay = 3;
-                break;
-            default:
-                materialsPerDay = 2;
-        }
+        // Calculate how many days each material should take based on its duration
+        const materialsWithDays = this.calculateMaterialDays(materials, duration, intensity);
         
         // Distribute materials across days
-        let materialIndex = 0;
-        for (let day = 1; day <= duration; day++) {
-            const dayMaterials = [];
+        let currentDay = 1;
+        materialsWithDays.forEach(material => {
+            const daysForMaterial = material.daysToComplete;
             
-            for (let i = 0; i < materialsPerDay && materialIndex < materials.length; i++) {
-                const material = materials[materialIndex];
-                dayMaterials.push({
+            for (let i = 0; i < daysForMaterial && currentDay <= duration; i++) {
+                const dayMaterial = {
                     ...material,
-                    day: day,
-                    completed: false
-                });
-                materialIndex++;
-            }
-            
-            // If no materials for this day, add a rest day or review day
-            if (dayMaterials.length === 0) {
-                dayMaterials.push({
-                    title: day % 7 === 0 ? "Weekly Review & Practice" : "Rest Day - Review Previous Materials",
-                    type: "Review",
-                    description: "Take time to review and practice what you've learned",
-                    duration: "30-60 min",
-                    difficulty: 1,
-                    url: "#",
-                    icon: "fas fa-book-open",
-                    day: day,
+                    day: currentDay,
                     completed: false,
-                    isRestDay: true
-                });
+                    dayInMaterial: i + 1,
+                    totalDaysInMaterial: daysForMaterial,
+                    title: daysForMaterial > 1 ? `${material.title} (Day ${i + 1}/${daysForMaterial})` : material.title
+                };
+                
+                dailyPlan.push(dayMaterial);
+                currentDay++;
             }
+        });
+        
+        // Fill remaining days with review/practice activities
+        while (currentDay <= duration) {
+            const reviewType = currentDay % 7 === 0 ? "Weekly Review & Practice" : 
+                             currentDay % 3 === 0 ? "Practice & Apply" : 
+                             "Review & Consolidate";
             
-            dailyPlan.push(...dayMaterials);
+            dailyPlan.push({
+                title: reviewType,
+                type: "Review",
+                description: "Review previous materials and practice what you've learned",
+                duration: "30-60 min",
+                difficulty: 1,
+                url: "#",
+                icon: "fas fa-book-open",
+                day: currentDay,
+                completed: false,
+                isRestDay: true
+            });
+            currentDay++;
         }
         
         return dailyPlan;
+    }
+
+    calculateMaterialDays(materials, totalDays, intensity) {
+        // Calculate how many days each material should take
+        const materialsWithDays = materials.map(material => {
+            let daysToComplete = 1;
+            
+            // Parse duration and estimate days needed
+            const duration = material.duration.toLowerCase();
+            if (duration.includes('week') || duration.includes('weeks')) {
+                const weeks = parseInt(duration.match(/\d+/)?.[0] || 1);
+                daysToComplete = Math.max(1, Math.min(weeks * 2, totalDays / 3)); // Max 2 days per week, but not more than 1/3 of total days
+            } else if (duration.includes('month') || duration.includes('months')) {
+                const months = parseInt(duration.match(/\d+/)?.[0] || 1);
+                daysToComplete = Math.max(1, Math.min(months * 3, totalDays / 2)); // Max 3 days per month, but not more than 1/2 of total days
+            } else if (duration.includes('hour') || duration.includes('hours')) {
+                const hours = parseInt(duration.match(/\d+/)?.[0] || 1);
+                // Estimate 1-2 hours per day based on intensity
+                const hoursPerDay = intensity === 'light' ? 1 : intensity === 'moderate' ? 1.5 : 2;
+                daysToComplete = Math.max(1, Math.ceil(hours / hoursPerDay));
+            } else if (duration.includes('day') || duration.includes('days')) {
+                daysToComplete = parseInt(duration.match(/\d+/)?.[0] || 1);
+            } else {
+                // Default based on difficulty and type
+                daysToComplete = material.difficulty >= 4 ? 3 : material.difficulty >= 3 ? 2 : 1;
+            }
+            
+            // Adjust based on intensity
+            if (intensity === 'light') {
+                daysToComplete = Math.ceil(daysToComplete * 1.5);
+            } else if (intensity === 'intensive') {
+                daysToComplete = Math.max(1, Math.floor(daysToComplete * 0.7));
+            }
+            
+            // Ensure we don't exceed reasonable limits
+            daysToComplete = Math.min(daysToComplete, Math.max(1, Math.floor(totalDays / materials.length)));
+            
+            return {
+                ...material,
+                daysToComplete: daysToComplete
+            };
+        });
+        
+        return materialsWithDays;
     }
 
     displayLearningTable(dailyPlan) {
@@ -2337,8 +2391,37 @@ Return only the JSON array, no additional text.`;
     }
 
     continuePlan(planIndex) {
-        this.viewPlan(planIndex);
-        this.switchPortalSection('dashboard');
+        const plans = this.getUserPlans();
+        const plan = plans[planIndex];
+        
+        if (plan) {
+            this.learningPlan = plan;
+            this.dailyPlan = plan.dailyPlan;
+            
+            // Show the learning plan in the main container
+            document.getElementById('userPortal').classList.add('hidden');
+            document.querySelector('.main-container').style.display = 'block';
+            
+            // Show back to portal button
+            document.getElementById('backToPortal').style.display = 'inline-block';
+            
+            // Go to step 4 (learning plan preview)
+            this.currentStep = 4;
+            this.updateStepVisibility();
+            this.updatePlanPreview();
+        }
+    }
+
+    returnToPortal() {
+        // Hide main container and show portal
+        document.querySelector('.main-container').style.display = 'none';
+        document.getElementById('userPortal').classList.remove('hidden');
+        
+        // Hide back to portal button
+        document.getElementById('backToPortal').style.display = 'none';
+        
+        // Refresh portal data
+        this.loadUserPortalData();
     }
 
     deletePlan(planIndex) {
