@@ -400,7 +400,7 @@ class LearnWhatApp {
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are an expert learning advisor. Generate personalized learning materials based on user preferences. First, consider 20 potential resources, then select the most relevant 4-8 based on time constraints and learning goals. Return ONLY a valid JSON array of selected learning materials with the following structure: [{"title": "Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://example.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
+                            content: 'You are an expert learning advisor. Generate personalized learning materials based on user preferences. CRITICAL: Only suggest REAL, EXISTING learning resources with VALID URLs. NO fake URLs like "https://example.com" or made-up resources. First, consider 20 real potential resources, then select the most relevant 4-8 based on time constraints and learning goals. Return ONLY a valid JSON array of selected learning materials with the following structure: [{"title": "Actual Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://real-working-url.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
                         },
                         {
                             role: 'user',
@@ -436,8 +436,41 @@ class LearnWhatApp {
             const materials = JSON.parse(jsonContent);
             console.log('🎯 Parsed AI Materials:', materials);
             
+            // Filter out fake URLs and validate materials
+            const validMaterials = materials.filter(material => {
+                const url = material.url;
+                // Check for fake/placeholder URLs
+                const fakeUrlPatterns = [
+                    'example.com',
+                    'placeholder',
+                    'fake',
+                    'test.com',
+                    'demo.com',
+                    'sample.com',
+                    '#',
+                    'javascript:',
+                    'mailto:',
+                    'tel:'
+                ];
+                
+                const isFakeUrl = fakeUrlPatterns.some(pattern => 
+                    url && url.toLowerCase().includes(pattern.toLowerCase())
+                );
+                
+                // Must have a valid URL and not be fake
+                return url && !isFakeUrl && (url.startsWith('http://') || url.startsWith('https://'));
+            });
+            
+            console.log('🔍 Filtered Valid Materials:', validMaterials);
+            
+            // Check if we have any valid materials
+            if (validMaterials.length === 0) {
+                console.warn('⚠️ No valid materials found after filtering fake URLs');
+                return [];
+            }
+            
             // Add AI generated flag and ensure proper structure
-            return materials.map(material => ({
+            return validMaterials.map(material => ({
                 ...material,
                 aiGenerated: true,
                 levels: ['all'], // AI materials are generally suitable for all levels
@@ -454,7 +487,7 @@ class LearnWhatApp {
     createMaterialsPrompt() {
         const { topic, description, level, purpose, duration, intensity, materials } = this.learningPlan;
         
-        return `Generate a comprehensive list of learning materials for someone who wants to learn "${topic}" at a "${level}" level.
+        return `Generate a comprehensive list of REAL, ACCESSIBLE learning materials for someone who wants to learn "${topic}" at a "${level}" level.
 
 User Details:
 - Topic: ${topic}
@@ -465,33 +498,42 @@ User Details:
 - Intensity: ${intensity}
 - Preferred Material Types: ${materials.join(', ')}
 
-Please provide exactly 20 high-quality learning resources that are relevant to their specific learning goals. After generating all 20 resources, intelligently select the most appropriate ones based on:
+CRITICAL REQUIREMENTS:
+- ONLY suggest REAL, EXISTING learning resources that are currently accessible on the internet
+- ALL URLs must be valid and working links to actual courses, books, videos, or resources
+- NO fake, placeholder, or example URLs (like "https://example.com")
+- NO made-up course names or resources that don't exist
+- Focus on well-known, reputable platforms and resources
+
+Please provide exactly 20 REAL, high-quality learning resources that are relevant to their specific learning goals. After generating all 20 resources, intelligently select the most appropriate ones based on:
 1. Relevance to their specific learning goals: "${description}"
 2. Time constraints (${duration} days with ${intensity} intensity)
 3. Learning progression (beginner to advanced)
 4. Material type preferences
 5. Difficulty level appropriateness
+6. AVAILABILITY and ACCESSIBILITY of the resource
 
-Include a diverse mix of:
-- Online courses or tutorials
-- Books or articles
-- Hands-on projects or exercises
-- Video content or interactive resources
-- Mobile apps or tools
-- Practice exercises and assessments
+Include a diverse mix of REAL resources from:
+- Coursera, edX, Udemy, Khan Academy, YouTube
+- FreeCodeCamp, Codecademy, Pluralsight
+- MIT OpenCourseWare, Stanford Online, Harvard Online
+- Real books available on Amazon, Google Books, or library platforms
+- Official documentation and tutorials from software companies
+- GitHub repositories with actual projects
+- Real podcasts, blogs, and articles from reputable sources
 
 For each of the 20 resources, include:
-- Title and type
-- Brief description
-- Estimated duration (be specific: e.g., "2 weeks", "40 hours", "1 month")
+- Title and type (use the ACTUAL title from the real resource)
+- Brief description (describe the ACTUAL content)
+- Estimated duration (be realistic based on the actual resource)
 - Difficulty level (1-5)
-- Cost information (Free, Paid (~$X), or Free (Audit))
+- Cost information (Free, Paid (~$X), or Free (Audit)) - be accurate
 - Relevance score (1-10, where 10 is most relevant to their goals)
-- Learning outcome (what they will achieve)
-- Prerequisites (if any)
-- Relevant URL if available
+- Learning outcome (what they will actually achieve from this real resource)
+- Prerequisites (if any, based on the actual resource requirements)
+- VALID URL (must be a real, working link to the actual resource)
 
-After providing all 20 resources, select the most relevant 4-8 resources that best fit their ${duration}-day learning timeline and ${intensity} intensity level. Consider the total time commitment and ensure a logical learning progression.
+After providing all 20 REAL resources, select the most relevant 4-8 resources that best fit their ${duration}-day learning timeline and ${intensity} intensity level. Consider the total time commitment and ensure a logical learning progression.
 
 Return only the JSON array with the selected resources (4-8 items), no additional text.`;
     }
