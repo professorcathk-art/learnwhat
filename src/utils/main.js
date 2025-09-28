@@ -380,7 +380,7 @@ class LearnWhatApp {
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are an expert learning advisor. Generate personalized learning materials based on user preferences. Return a JSON array of 4-6 learning materials with the following structure: [{"title": "Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://example.com", "icon": "fas fa-icon-class"}]'
+                            content: 'You are an expert learning advisor. Generate personalized learning materials based on user preferences. Return ONLY a valid JSON array of 4-6 learning materials with the following structure: [{"title": "Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://example.com", "icon": "fas fa-icon-class"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
                         },
                         {
                             role: 'user',
@@ -402,8 +402,18 @@ class LearnWhatApp {
             const content = data.choices[0].message.content;
             console.log('📄 AI Generated Content:', content);
             
+            // Clean the content to extract JSON (remove markdown code blocks if present)
+            let jsonContent = content.trim();
+            if (jsonContent.startsWith('```json')) {
+                jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (jsonContent.startsWith('```')) {
+                jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            
+            console.log('🧹 Cleaned JSON Content:', jsonContent);
+            
             // Parse the JSON response
-            const materials = JSON.parse(content);
+            const materials = JSON.parse(jsonContent);
             console.log('🎯 Parsed AI Materials:', materials);
             
             // Add AI generated flag and ensure proper structure
