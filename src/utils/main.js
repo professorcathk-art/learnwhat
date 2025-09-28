@@ -481,8 +481,8 @@ class LearnWhatApp {
             
             // Check if we have any valid materials
             if (validMaterials.length === 0) {
-                console.warn('⚠️ No valid materials found after filtering fake URLs');
-                return [];
+                console.warn('⚠️ No valid materials found after filtering fake URLs - using fallback materials');
+                return this.getFallbackMaterials();
             }
             
             // Add AI generated flag and ensure proper structure
@@ -496,8 +496,77 @@ class LearnWhatApp {
         } catch (error) {
             console.error('❌ Error calling AI API:', error);
             console.log('🔄 Falling back to static materials...');
-            return [];
+            return this.getFallbackMaterials();
         }
+    }
+
+    getFallbackMaterials() {
+        // Return verified, real learning resources as fallback
+        const fallbackMaterials = [
+            {
+                title: "Machine Learning Course - Stanford University",
+                type: "Course",
+                description: "Comprehensive machine learning course by Andrew Ng covering supervised learning, unsupervised learning, and best practices.",
+                duration: "11 weeks",
+                difficulty: 3,
+                url: "https://www.coursera.org/learn/machine-learning",
+                icon: "fas fa-laptop-code",
+                relevanceScore: 9,
+                learningOutcome: "Master fundamental machine learning algorithms and techniques",
+                prerequisites: "Basic programming knowledge, linear algebra, statistics"
+            },
+            {
+                title: "Python for Data Science - IBM",
+                type: "Course",
+                description: "Learn Python programming for data science, including pandas, numpy, and data visualization.",
+                duration: "5 weeks",
+                difficulty: 2,
+                url: "https://www.coursera.org/learn/python-for-applied-data-science-ai",
+                icon: "fas fa-code",
+                relevanceScore: 8,
+                learningOutcome: "Proficient in Python for data analysis and machine learning",
+                prerequisites: "Basic programming knowledge"
+            },
+            {
+                title: "Deep Learning Specialization - DeepLearning.AI",
+                type: "Course",
+                description: "Comprehensive deep learning course covering neural networks, CNNs, RNNs, and more.",
+                duration: "5 months",
+                difficulty: 4,
+                url: "https://www.coursera.org/specializations/deep-learning",
+                icon: "fas fa-brain",
+                relevanceScore: 9,
+                learningOutcome: "Build and train deep neural networks for various applications",
+                prerequisites: "Machine learning basics, Python programming"
+            },
+            {
+                title: "FreeCodeCamp - Machine Learning with Python",
+                type: "Course",
+                description: "Free comprehensive course covering machine learning algorithms and implementations in Python.",
+                duration: "300 hours",
+                difficulty: 3,
+                url: "https://www.freecodecamp.org/learn/machine-learning-with-python/",
+                icon: "fas fa-graduation-cap",
+                relevanceScore: 8,
+                learningOutcome: "Practical machine learning skills with hands-on projects",
+                prerequisites: "Python programming basics"
+            },
+            {
+                title: "Khan Academy - Statistics and Probability",
+                type: "Course",
+                description: "Essential statistics and probability concepts for machine learning and data science.",
+                duration: "20 hours",
+                difficulty: 2,
+                url: "https://www.khanacademy.org/math/statistics-probability",
+                icon: "fas fa-chart-bar",
+                relevanceScore: 7,
+                learningOutcome: "Strong foundation in statistics for data analysis",
+                prerequisites: "Basic math knowledge"
+            }
+        ];
+
+        console.log('📚 Using fallback materials with verified URLs');
+        return fallbackMaterials;
     }
 
     createMaterialsPrompt() {
@@ -1644,23 +1713,22 @@ Return only the JSON array with the selected resources (4-8 items), no additiona
             }
         });
         
-        // Fill remaining days with review/practice activities
+        // Fill remaining days with meaningful learning activities
         while (currentDay <= duration) {
-            const reviewType = currentDay % 7 === 0 ? "Weekly Review & Practice" : 
-                             currentDay % 3 === 0 ? "Practice & Apply" : 
-                             "Review & Consolidate";
+            // Create meaningful learning activities instead of just review days
+            const activityType = this.generateLearningActivity(currentDay, duration, materialsWithDays);
             
             dailyPlan.push({
-                title: reviewType,
-                type: "Review",
-                description: "Review previous materials and practice what you've learned",
-                duration: "30-60 min",
-                difficulty: 1,
-                url: "#",
-                icon: "fas fa-book-open",
+                title: activityType.title,
+                type: activityType.type,
+                description: activityType.description,
+                duration: activityType.duration,
+                difficulty: activityType.difficulty,
+                url: activityType.url,
+                icon: activityType.icon,
                 day: currentDay,
                 completed: false,
-                isRestDay: true
+                isRestDay: false
             });
             currentDay++;
         }
@@ -1700,8 +1768,14 @@ Return only the JSON array with the selected resources (4-8 items), no additiona
                 daysToComplete = Math.max(1, Math.floor(daysToComplete * 0.7));
             }
             
-            // Ensure we don't exceed reasonable limits
-            daysToComplete = Math.min(daysToComplete, Math.max(1, Math.floor(totalDays / materials.length)));
+            // Ensure we don't exceed reasonable limits, but try to fill more days
+            const maxDaysPerMaterial = Math.max(1, Math.floor(totalDays / materials.length));
+            daysToComplete = Math.min(daysToComplete, maxDaysPerMaterial);
+            
+            // For longer courses, try to use more days to fill the timeline
+            if (totalDays > 30 && daysToComplete < maxDaysPerMaterial) {
+                daysToComplete = Math.min(daysToComplete * 1.5, maxDaysPerMaterial);
+            }
             
             return {
                 ...material,
@@ -1710,6 +1784,83 @@ Return only the JSON array with the selected resources (4-8 items), no additiona
         });
         
         return materialsWithDays;
+    }
+
+    generateLearningActivity(currentDay, totalDays, materials) {
+        const topic = this.learningPlan.topic;
+        const intensity = this.learningPlan.intensity;
+        
+        // Calculate progress percentage
+        const progressPercent = (currentDay / totalDays) * 100;
+        
+        // Different activity types based on progress and day
+        if (currentDay % 7 === 0) {
+            // Weekly milestone activities
+            return {
+                title: `Week ${Math.ceil(currentDay / 7)} Milestone: Build a ${topic} Project`,
+                type: "Project",
+                description: `Create a practical project applying what you've learned about ${topic}. This could be a small application, analysis, or demonstration of your skills.`,
+                duration: "2-3 hours",
+                difficulty: 3,
+                url: "https://github.com/trending",
+                icon: "fas fa-project-diagram"
+            };
+        } else if (currentDay % 5 === 0) {
+            // Practice and application days
+            return {
+                title: `Practice Session: ${topic} Exercises`,
+                type: "Practice",
+                description: `Work on practical exercises and problems related to ${topic}. Focus on applying theoretical knowledge to real-world scenarios.`,
+                duration: "1-2 hours",
+                difficulty: 2,
+                url: "https://www.kaggle.com/learn",
+                icon: "fas fa-dumbbell"
+            };
+        } else if (currentDay % 3 === 0) {
+            // Research and exploration days
+            return {
+                title: `Research: Latest ${topic} Trends`,
+                type: "Research",
+                description: `Research the latest developments, trends, and best practices in ${topic}. Read articles, watch videos, or explore new tools and techniques.`,
+                duration: "1 hour",
+                difficulty: 2,
+                url: "https://medium.com/topic/machine-learning",
+                icon: "fas fa-search"
+            };
+        } else if (progressPercent > 80) {
+            // Advanced activities for later in the course
+            return {
+                title: `Advanced ${topic} Concepts`,
+                type: "Advanced Study",
+                description: `Dive deeper into advanced concepts and techniques in ${topic}. Explore specialized topics and advanced applications.`,
+                duration: "1.5 hours",
+                difficulty: 4,
+                url: "https://paperswithcode.com/",
+                icon: "fas fa-rocket"
+            };
+        } else if (progressPercent > 60) {
+            // Intermediate activities
+            return {
+                title: `Intermediate ${topic} Practice`,
+                type: "Practice",
+                description: `Practice intermediate-level concepts in ${topic}. Work on more complex problems and applications.`,
+                duration: "1.5 hours",
+                difficulty: 3,
+                url: "https://leetcode.com/",
+                icon: "fas fa-cogs"
+            };
+        } else {
+            // Early stage activities
+            return {
+                title: `Foundation Building: ${topic} Basics`,
+                type: "Study",
+                description: `Strengthen your foundation in ${topic} fundamentals. Review key concepts and work on basic exercises.`,
+                duration: "1 hour",
+                difficulty: 2,
+                url: "https://www.khanacademy.org/",
+                icon: "fas fa-book"
+            };
+        }
     }
 
     displayLearningTable(dailyPlan) {
