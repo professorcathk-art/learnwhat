@@ -207,6 +207,7 @@ class LearnWhatApp {
         
         return {
             topic: this.userData.topic,
+            description: this.userData.description,
             level: this.userData.level,
             purpose: this.userData.purpose,
             duration: duration,
@@ -399,7 +400,7 @@ class LearnWhatApp {
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are an expert learning advisor. Generate personalized learning materials based on user preferences. Return ONLY a valid JSON array of 4-6 learning materials with the following structure: [{"title": "Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://example.com", "icon": "fas fa-icon-class"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
+                            content: 'You are an expert learning advisor. Generate personalized learning materials based on user preferences. First, consider 20 potential resources, then select the most relevant 4-8 based on time constraints and learning goals. Return ONLY a valid JSON array of selected learning materials with the following structure: [{"title": "Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://example.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
                         },
                         {
                             role: 'user',
@@ -453,7 +454,7 @@ class LearnWhatApp {
     createMaterialsPrompt() {
         const { topic, description, level, purpose, duration, intensity, materials } = this.learningPlan;
         
-        return `Generate personalized learning materials for someone who wants to learn "${topic}" at a "${level}" level.
+        return `Generate a comprehensive list of learning materials for someone who wants to learn "${topic}" at a "${level}" level.
 
 User Details:
 - Topic: ${topic}
@@ -464,33 +465,35 @@ User Details:
 - Intensity: ${intensity}
 - Preferred Material Types: ${materials.join(', ')}
 
-Please recommend 4-6 high-quality learning resources that match their specific learning goals and preferences. The user has provided detailed information about what they want to learn, so tailor the recommendations to their specific needs.
+Please provide exactly 20 high-quality learning resources that are relevant to their specific learning goals. After generating all 20 resources, intelligently select the most appropriate ones based on:
+1. Relevance to their specific learning goals: "${description}"
+2. Time constraints (${duration} days with ${intensity} intensity)
+3. Learning progression (beginner to advanced)
+4. Material type preferences
+5. Difficulty level appropriateness
 
-Include a mix of:
+Include a diverse mix of:
 - Online courses or tutorials
 - Books or articles
 - Hands-on projects or exercises
 - Video content or interactive resources
 - Mobile apps or tools
+- Practice exercises and assessments
 
-For each recommendation, include:
+For each of the 20 resources, include:
 - Title and type
 - Brief description
-- Estimated duration
+- Estimated duration (be specific: e.g., "2 weeks", "40 hours", "1 month")
 - Difficulty level (1-5)
 - Cost information (Free, Paid (~$X), or Free (Audit))
+- Relevance score (1-10, where 10 is most relevant to their goals)
+- Learning outcome (what they will achieve)
+- Prerequisites (if any)
 - Relevant URL if available
 
-Make sure the recommendations are:
-1. Directly relevant to their specific learning goals: "${description}"
-2. Appropriate for their skill level
-3. Match their learning purpose
-4. Fit their time commitment
-5. Include the material types they prefer
-6. Are from reputable sources
-7. Include both free and paid options when relevant
+After providing all 20 resources, select the most relevant 4-8 resources that best fit their ${duration}-day learning timeline and ${intensity} intensity level. Consider the total time commitment and ensure a logical learning progression.
 
-Return only the JSON array, no additional text.`;
+Return only the JSON array with the selected resources (4-8 items), no additional text.`;
     }
 
     mapTypeToCategory(type) {
@@ -1999,9 +2002,13 @@ Return only the JSON array, no additional text.`;
                         <td>
                             ${material.isRestDay ? 
                                 `<div class="material-title">${material.title}</div>` :
-                                `<a href="${material.url}" target="_blank" class="material-link">
-                                    ${material.title}
-                                </a>`
+                                `<div class="material-info">
+                                    <a href="${material.url}" target="_blank" class="material-link">
+                                        ${material.title}
+                                    </a>
+                                    ${material.relevanceScore ? `<div class="relevance-score">Relevance: ${material.relevanceScore}/10</div>` : ''}
+                                    ${material.learningOutcome ? `<div class="learning-outcome">Outcome: ${material.learningOutcome}</div>` : ''}
+                                </div>`
                             }
                         </td>
                         <td>

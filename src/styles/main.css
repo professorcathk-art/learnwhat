@@ -1065,6 +1065,20 @@ body {
     line-height: 1.4;
 }
 
+.relevance-score {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.learning-outcome {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
 .material-preview {
     margin-top: 0.5rem;
 }
