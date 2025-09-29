@@ -373,24 +373,104 @@ class LearnWhatApp {
     }
 
     async getAIGeneratedMaterials() {
-        // Temporarily disable AI API due to fake URL generation issues
-        console.log('⚠️ AI API temporarily disabled due to fake URL generation');
-        console.log('📚 Using verified fallback materials instead');
-        return this.getFallbackMaterials();
+        const prompt = this.createMaterialsPrompt();
+        console.log('🤖 Calling AI API to generate personalized materials...');
+        console.log('📝 User Description:', this.learningPlan.description);
+        
+        try {
+            const response = await fetch('https://api.aimlapi.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ce74038095d6469184af3b39e3eca7b3'
+                },
+                body: JSON.stringify({
+                    model: 'perplexity/sonar-pro',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'You are an expert learning advisor. Analyze the user\'s specific learning goals and suggest relevant, real learning resources. Focus on understanding the user\'s exact needs rather than broad categories. Return ONLY a valid JSON array of learning materials with this structure: [{"title": "Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://real-working-url.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap in markdown - return only JSON.'
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    temperature: 0.3,
+                    top_p: 0.7,
+                    frequency_penalty: 1,
+                    max_tokens: 2000,
+                    top_k: 50
+                })
+            });
+
+            if (!response.ok) {
+                console.error('❌ API request failed:', response.status, response.statusText);
+                throw new Error(`API request failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('✅ AI API Response received');
+            const content = data.choices[0].message.content;
+            console.log('📄 AI Generated Content:', content);
+            
+            // Clean the content to extract JSON
+            let jsonContent = content.trim();
+            if (jsonContent.startsWith('```json')) {
+                jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (jsonContent.startsWith('```')) {
+                jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            
+            console.log('🧹 Cleaned JSON Content:', jsonContent);
+            
+            // Parse the JSON response
+            const materials = JSON.parse(jsonContent);
+            console.log('🎯 Parsed AI Materials:', materials);
+            
+            // Filter out fake URLs and validate materials
+            const validMaterials = materials.filter(material => {
+                const url = material.url;
+                const fakeUrlPatterns = [
+                    'example.com', 'placeholder', 'fake', 'test.com', 'demo.com', 'sample.com',
+                    'localhost', '127.0.0.1', '0.0.0.0', '#', 'javascript:', 'mailto:', 'tel:',
+                    'data:', 'file:', 'ftp:', 'about:', 'chrome:', 'edge:', 'mozilla:'
+                ];
+                
+                const isFakeUrl = fakeUrlPatterns.some(pattern => 
+                    url && url.toLowerCase().includes(pattern.toLowerCase())
+                );
+                
+                return url && !isFakeUrl && 
+                       (url.startsWith('http://') || url.startsWith('https://')) &&
+                       url.length > 10;
+            });
+            
+            console.log('🔍 Filtered Valid Materials:', validMaterials);
+            
+            if (validMaterials.length === 0) {
+                console.warn('⚠️ No valid materials found - using fallback materials');
+                return this.getFallbackMaterials();
+            }
+            
+            // Add AI generated flag and ensure proper structure
+            return validMaterials.map(material => ({
+                ...material,
+                aiGenerated: true,
+                levels: ['all'],
+                category: this.mapTypeToCategory(material.type)
+            }));
+            
+        } catch (error) {
+            console.error('❌ Error calling AI API:', error);
+            console.log('🔄 Falling back to static materials...');
+            return this.getFallbackMaterials();
+        }
     }
 
     getFallbackMaterials() {
-        const topic = this.learningPlan?.topic?.toLowerCase() || '';
-        const description = this.learningPlan?.description?.toLowerCase() || '';
-        
-        // Analyze the description to determine the most relevant materials
-        const isTrading = description.includes('trading') || description.includes('finance') || description.includes('investment') || description.includes('stock') || description.includes('market');
-        const isAI = description.includes('ai') || description.includes('artificial intelligence') || description.includes('machine learning') || description.includes('deep learning') || description.includes('neural network');
-        const isWebDev = description.includes('web development') || description.includes('frontend') || description.includes('backend') || description.includes('javascript') || description.includes('react') || description.includes('html') || description.includes('css');
-        const isDataScience = description.includes('data science') || description.includes('data analysis') || description.includes('python') || description.includes('statistics') || description.includes('analytics');
-        const isProgramming = description.includes('programming') || description.includes('coding') || description.includes('software development') || description.includes('algorithm');
-        
-        // Return verified, real learning resources as fallback
+        // Return a comprehensive set of verified, real learning resources as fallback
+        // These are high-quality resources that work well for most learning goals
         const fallbackMaterials = [
             {
                 title: "Machine Learning Course - Stanford University",
@@ -454,9 +534,9 @@ class LearnWhatApp {
             }
         ];
 
-        // Add topic-specific materials based on description analysis
-        if (isTrading) {
-            fallbackMaterials.push({
+        // Add additional high-quality resources for comprehensive coverage
+        fallbackMaterials.push(
+            {
                 title: "Financial Markets - Yale University",
                 type: "Course",
                 description: "Comprehensive course on financial markets, covering stocks, bonds, derivatives, and market behavior.",
@@ -464,27 +544,11 @@ class LearnWhatApp {
                 difficulty: 3,
                 url: "https://www.coursera.org/learn/financial-markets-global",
                 icon: "fas fa-chart-line",
-                relevanceScore: 9,
+                relevanceScore: 8,
                 learningOutcome: "Understand financial markets and investment strategies",
                 prerequisites: "Basic economics knowledge"
-            });
-            
-            fallbackMaterials.push({
-                title: "Investment Management Specialization - University of Geneva",
-                type: "Course",
-                description: "Learn about investment strategies, portfolio management, and risk assessment.",
-                duration: "6 months",
-                difficulty: 3,
-                url: "https://www.coursera.org/specializations/investment-management",
-                icon: "fas fa-coins",
-                relevanceScore: 8,
-                learningOutcome: "Master investment management and portfolio optimization",
-                prerequisites: "Basic finance knowledge"
-            });
-        }
-
-        if (isAI) {
-            fallbackMaterials.push({
+            },
+            {
                 title: "AI For Everyone - DeepLearning.AI",
                 type: "Course",
                 description: "Non-technical introduction to AI concepts, applications, and implications for business and society.",
@@ -495,11 +559,8 @@ class LearnWhatApp {
                 relevanceScore: 8,
                 learningOutcome: "Understand AI concepts and applications without technical background",
                 prerequisites: "None"
-            });
-        }
-
-        if (isWebDev) {
-            fallbackMaterials.push({
+            },
+            {
                 title: "Web Development Bootcamp - Colt Steele",
                 type: "Course",
                 description: "Complete web development course covering HTML, CSS, JavaScript, Node.js, and more.",
@@ -507,14 +568,11 @@ class LearnWhatApp {
                 difficulty: 2,
                 url: "https://www.udemy.com/course/the-web-developer-bootcamp/",
                 icon: "fas fa-code",
-                relevanceScore: 9,
+                relevanceScore: 8,
                 learningOutcome: "Build full-stack web applications from scratch",
                 prerequisites: "Basic computer skills"
-            });
-        }
-
-        if (isDataScience) {
-            fallbackMaterials.push({
+            },
+            {
                 title: "Data Science Specialization - Johns Hopkins University",
                 type: "Course",
                 description: "Comprehensive data science program covering R programming, statistical analysis, and machine learning.",
@@ -522,14 +580,11 @@ class LearnWhatApp {
                 difficulty: 3,
                 url: "https://www.coursera.org/specializations/jhu-data-science",
                 icon: "fas fa-chart-bar",
-                relevanceScore: 9,
+                relevanceScore: 8,
                 learningOutcome: "Master data science tools and techniques",
                 prerequisites: "Basic programming knowledge"
-            });
-        }
-
-        if (isProgramming) {
-            fallbackMaterials.push({
+            },
+            {
                 title: "CS50's Introduction to Computer Science - Harvard University",
                 type: "Course",
                 description: "Harvard's famous introduction to computer science covering algorithms, data structures, and programming.",
@@ -537,67 +592,58 @@ class LearnWhatApp {
                 difficulty: 3,
                 url: "https://www.edx.org/course/introduction-computer-science-harvardx-cs50x",
                 icon: "fas fa-laptop-code",
-                relevanceScore: 9,
+                relevanceScore: 8,
                 learningOutcome: "Strong foundation in computer science and programming",
                 prerequisites: "None"
-            });
-        }
+            }
+        );
 
-        // Sort materials by relevance score (highest first)
-        fallbackMaterials.sort((a, b) => b.relevanceScore - a.relevanceScore);
-
-        console.log('📚 Using verified fallback materials with real URLs');
-        console.log('🎯 Description analysis:', { isTrading, isAI, isWebDev, isDataScience, isProgramming });
+        console.log('📚 Using comprehensive fallback materials with real URLs');
         return fallbackMaterials;
     }
 
     createMaterialsPrompt() {
         const { topic, description, level, purpose, duration, intensity, materials } = this.learningPlan;
         
-        return `IMPORTANT: You must use your real-time web search capabilities to find ACTUAL learning resources. Do NOT make up or generate fake URLs.
+        return `You are an expert learning advisor. I need you to analyze this user's specific learning goals and suggest the most relevant learning resources.
 
-Search for REAL, CURRENTLY ACCESSIBLE learning materials for someone who wants to learn "${topic}" at a "${level}" level.
+USER'S LEARNING GOALS:
+"${description}"
 
-User Details:
-- Topic: ${topic}
-- Learning Goals: ${description}
-- Level: ${level}
-- Purpose: ${purpose}
-- Duration: ${duration} days
-- Intensity: ${intensity}
-- Preferred Material Types: ${materials.join(', ')}
+CONTEXT:
+- General topic area: ${topic}
+- Skill level: ${level}
+- Learning purpose: ${purpose}
+- Timeline: ${duration} days
+- Learning intensity: ${intensity}
+- Preferred material types: ${materials.join(', ')}
 
-MANDATORY SEARCH REQUIREMENTS:
-1. Use your web search function to find ACTUAL, CURRENT learning resources
-2. Search for each resource individually to verify it exists and is accessible
-3. Only include resources from reputable platforms: Coursera, edX, Udemy, Khan Academy, YouTube, FreeCodeCamp, Codecademy, Pluralsight, MIT OpenCourseWare, etc.
-4. For books: Search Amazon, Google Books, or library platforms for real books
-5. For projects: Search GitHub for actual repositories
-6. For documentation: Search official company documentation sites
-7. Verify each URL works before including it
+ANALYSIS TASK:
+1. Carefully read and understand the user's specific learning goals in "${description}"
+2. Identify the key skills, concepts, and knowledge areas they want to develop
+3. Consider their level (${level}) and timeline (${duration} days)
+4. Think about the most effective learning path for their specific goals
 
-SEARCH PROCESS:
-1. Search for "${topic} course" on Coursera
-2. Search for "${topic} tutorial" on YouTube  
-3. Search for "${topic} book" on Amazon
-4. Search for "${topic} project" on GitHub
-5. Search for "${topic} documentation" on official sites
-6. Continue searching until you find 20 real resources
+RESOURCE RECOMMENDATION:
+Based on your analysis, suggest 4-8 learning resources that are:
+- Directly relevant to their specific goals in "${description}"
+- Appropriate for their ${level} level
+- Achievable within their ${duration}-day timeline
+- Include a mix of material types they prefer: ${materials.join(', ')}
 
-For each resource, you MUST:
-- Use the EXACT title from the real resource
-- Provide the ACTUAL URL that you verified exists
-- Describe the REAL content (not made-up descriptions)
-- Give accurate duration, difficulty, and cost information
+For each resource, provide:
+- Title and type (Course, Book, Video, Project, etc.)
+- Brief description of how it relates to their specific goals
+- Estimated duration
+- Difficulty level (1-5)
+- Relevance score (1-10) based on how well it matches their goals
+- Learning outcome (what specific skill/knowledge they'll gain)
+- Prerequisites (if any)
+- URL (must be real and accessible)
 
-After finding 20 REAL resources, select the most relevant 4-8 based on:
-1. Relevance to: "${description}"
-2. Time constraints: ${duration} days, ${intensity} intensity
-3. Learning progression and difficulty appropriateness
-4. Material type preferences
-5. Verified accessibility
+Focus on understanding their unique learning needs rather than broad categories. Be specific about how each resource helps them achieve their stated goals.
 
-Return only the JSON array with the selected resources (4-8 items), no additional text.`;
+Return only a JSON array with the selected resources, no additional text.`;
     }
 
     mapTypeToCategory(type) {
@@ -1779,128 +1825,46 @@ Return only the JSON array with the selected resources (4-8 items), no additiona
         // Calculate progress percentage
         const progressPercent = (currentDay / totalDays) * 100;
         
-        // Analyze description for more specific activities
-        const isTrading = description.toLowerCase().includes('trading') || description.toLowerCase().includes('finance') || description.toLowerCase().includes('investment');
-        const isAI = description.toLowerCase().includes('ai') || description.toLowerCase().includes('machine learning') || description.toLowerCase().includes('artificial intelligence');
-        const isWebDev = description.toLowerCase().includes('web development') || description.toLowerCase().includes('frontend') || description.toLowerCase().includes('backend');
-        const isDataScience = description.toLowerCase().includes('data science') || description.toLowerCase().includes('data analysis') || description.toLowerCase().includes('python');
-        
-        // Different activity types based on progress, day, and description
+        // Different activity types based on progress and day
         if (currentDay % 7 === 0) {
-            // Weekly milestone activities - specific to user's interests
-            if (isTrading) {
-                return {
-                    title: `Week ${Math.ceil(currentDay / 7)} Milestone: Trading Strategy Project`,
-                    type: "Project",
-                    description: `Build a trading strategy or portfolio analysis tool. Apply your learning to create a practical trading system or analyze market data.`,
-                    duration: "2-3 hours",
-                    difficulty: 3,
-                    url: "https://github.com/trending",
-                    icon: "fas fa-chart-line"
-                };
-            } else if (isAI) {
-                return {
-                    title: `Week ${Math.ceil(currentDay / 7)} Milestone: AI Model Project`,
-                    type: "Project",
-                    description: `Create an AI model or application. Build a machine learning model, chatbot, or AI-powered tool based on your learning goals.`,
-                    duration: "2-3 hours",
-                    difficulty: 3,
-                    url: "https://github.com/trending",
-                    icon: "fas fa-robot"
-                };
-            } else if (isWebDev) {
-                return {
-                    title: `Week ${Math.ceil(currentDay / 7)} Milestone: Web Application`,
-                    type: "Project",
-                    description: `Build a web application or website. Create a full-stack project that demonstrates your web development skills.`,
-                    duration: "2-3 hours",
-                    difficulty: 3,
-                    url: "https://github.com/trending",
-                    icon: "fas fa-code"
-                };
-            } else {
-                return {
-                    title: `Week ${Math.ceil(currentDay / 7)} Milestone: ${topic} Project`,
-                    type: "Project",
-                    description: `Create a practical project applying what you've learned about ${topic}. Build something that demonstrates your skills.`,
-                    duration: "2-3 hours",
-                    difficulty: 3,
-                    url: "https://github.com/trending",
-                    icon: "fas fa-project-diagram"
-                };
-            }
+            // Weekly milestone activities
+            return {
+                title: `Week ${Math.ceil(currentDay / 7)} Milestone: ${topic} Project`,
+                type: "Project",
+                description: `Create a practical project applying what you've learned about ${topic}. Build something that demonstrates your skills and relates to your learning goals: "${description}".`,
+                duration: "2-3 hours",
+                difficulty: 3,
+                url: "https://github.com/trending",
+                icon: "fas fa-project-diagram"
+            };
         } else if (currentDay % 5 === 0) {
-            // Practice and application days - tailored to interests
-            if (isTrading) {
-                return {
-                    title: `Practice Session: Trading Exercises`,
-                    type: "Practice",
-                    description: `Practice trading strategies, analyze market data, or work on financial calculations. Apply your knowledge to real trading scenarios.`,
-                    duration: "1-2 hours",
-                    difficulty: 2,
-                    url: "https://www.investopedia.com/",
-                    icon: "fas fa-coins"
-                };
-            } else if (isAI) {
-                return {
-                    title: `Practice Session: AI/ML Exercises`,
-                    type: "Practice",
-                    description: `Work on machine learning problems, practice coding AI algorithms, or experiment with AI tools and frameworks.`,
-                    duration: "1-2 hours",
-                    difficulty: 2,
-                    url: "https://www.kaggle.com/learn",
-                    icon: "fas fa-brain"
-                };
-            } else {
-                return {
-                    title: `Practice Session: ${topic} Exercises`,
-                    type: "Practice",
-                    description: `Work on practical exercises and problems related to ${topic}. Focus on applying theoretical knowledge to real-world scenarios.`,
-                    duration: "1-2 hours",
-                    difficulty: 2,
-                    url: "https://www.kaggle.com/learn",
-                    icon: "fas fa-dumbbell"
-                };
-            }
+            // Practice and application days
+            return {
+                title: `Practice Session: ${topic} Exercises`,
+                type: "Practice",
+                description: `Work on practical exercises and problems related to ${topic}. Focus on applying theoretical knowledge to real-world scenarios that align with your goals: "${description}".`,
+                duration: "1-2 hours",
+                difficulty: 2,
+                url: "https://www.kaggle.com/learn",
+                icon: "fas fa-dumbbell"
+            };
         } else if (currentDay % 3 === 0) {
-            // Research and exploration days - specific to interests
-            if (isTrading) {
-                return {
-                    title: `Research: Financial Markets & Trading`,
-                    type: "Research",
-                    description: `Research latest market trends, trading strategies, or financial news. Stay updated with market developments and trading techniques.`,
-                    duration: "1 hour",
-                    difficulty: 2,
-                    url: "https://www.bloomberg.com/",
-                    icon: "fas fa-chart-line"
-                };
-            } else if (isAI) {
-                return {
-                    title: `Research: AI & Machine Learning Trends`,
-                    type: "Research",
-                    description: `Research latest AI developments, new machine learning techniques, or AI applications. Stay current with AI innovations.`,
-                    duration: "1 hour",
-                    difficulty: 2,
-                    url: "https://medium.com/topic/machine-learning",
-                    icon: "fas fa-robot"
-                };
-            } else {
-                return {
-                    title: `Research: Latest ${topic} Trends`,
-                    type: "Research",
-                    description: `Research the latest developments, trends, and best practices in ${topic}. Read articles, watch videos, or explore new tools.`,
-                    duration: "1 hour",
-                    difficulty: 2,
-                    url: "https://medium.com/topic/machine-learning",
-                    icon: "fas fa-search"
-                };
-            }
+            // Research and exploration days
+            return {
+                title: `Research: Latest ${topic} Trends`,
+                type: "Research",
+                description: `Research the latest developments, trends, and best practices in ${topic}. Focus on areas that relate to your learning goals: "${description}".`,
+                duration: "1 hour",
+                difficulty: 2,
+                url: "https://medium.com/",
+                icon: "fas fa-search"
+            };
         } else if (progressPercent > 80) {
             // Advanced activities for later in the course
             return {
                 title: `Advanced ${topic} Concepts`,
                 type: "Advanced Study",
-                description: `Dive deeper into advanced concepts and techniques in ${topic}. Explore specialized topics and advanced applications.`,
+                description: `Dive deeper into advanced concepts and techniques in ${topic}. Explore specialized topics that help you achieve your specific goals: "${description}".`,
                 duration: "1.5 hours",
                 difficulty: 4,
                 url: "https://paperswithcode.com/",
@@ -1911,7 +1875,7 @@ Return only the JSON array with the selected resources (4-8 items), no additiona
             return {
                 title: `Intermediate ${topic} Practice`,
                 type: "Practice",
-                description: `Practice intermediate-level concepts in ${topic}. Work on more complex problems and applications.`,
+                description: `Practice intermediate-level concepts in ${topic}. Work on more complex problems that build toward your learning goals: "${description}".`,
                 duration: "1.5 hours",
                 difficulty: 3,
                 url: "https://leetcode.com/",
@@ -1922,7 +1886,7 @@ Return only the JSON array with the selected resources (4-8 items), no additiona
             return {
                 title: `Foundation Building: ${topic} Basics`,
                 type: "Study",
-                description: `Strengthen your foundation in ${topic} fundamentals. Review key concepts and work on basic exercises.`,
+                description: `Strengthen your foundation in ${topic} fundamentals. Review key concepts that will help you achieve your learning goals: "${description}".`,
                 duration: "1 hour",
                 difficulty: 2,
                 url: "https://www.khanacademy.org/",
