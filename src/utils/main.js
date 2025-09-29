@@ -67,7 +67,7 @@ class LearnWhatApp {
         });
 
         document.getElementById('regeneratePlan').addEventListener('click', () => {
-            this.generateLearningPlanTable();
+            this.regenerateLearningPlan();
         });
 
         // Back to portal button
@@ -2730,6 +2730,28 @@ Return only the JSON array with the selected resources (4-8 items), no additiona
             `${this.learningPlan.duration} days, ${this.learningPlan.intensity} intensity`,
             'fas fa-plus-circle'
         );
+    }
+
+    regenerateLearningPlan() {
+        console.log('🔄 Regenerating learning plan...');
+        
+        // Update button text to show it's working
+        const regenerateBtn = document.getElementById('regeneratePlan');
+        const originalText = regenerateBtn.innerHTML;
+        regenerateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Regenerating...';
+        regenerateBtn.disabled = true;
+        
+        // Add a small delay to show the feedback, then regenerate
+        setTimeout(() => {
+            this.generateLearningPlanTable();
+            
+            // Reset button after a short delay
+            setTimeout(() => {
+                regenerateBtn.innerHTML = originalText;
+                regenerateBtn.disabled = false;
+                console.log('✅ Regenerate button reset');
+            }, 1000);
+        }, 500);
     }
 }
 
