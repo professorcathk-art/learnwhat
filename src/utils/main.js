@@ -373,130 +373,15 @@ class LearnWhatApp {
     }
 
     async getAIGeneratedMaterials() {
-        const prompt = this.createMaterialsPrompt();
-        console.log('🤖 Calling AI API to generate materials...');
-        console.log('📝 Prompt:', prompt);
-        
-        try {
-            const response = await fetch('https://api.aimlapi.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ce74038095d6469184af3b39e3eca7b3'
-                },
-                body: JSON.stringify({
-                    model: 'perplexity/sonar-pro',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'You are Perplexity Sonar Pro with real-time web search capabilities. You MUST search the internet to find ACTUAL, CURRENT learning resources that exist and are accessible. Do NOT make up or generate fake URLs. Use your search function to find real courses, books, videos, and tutorials from reputable platforms like Coursera, edX, Udemy, Khan Academy, YouTube, FreeCodeCamp, etc. Search for each resource to verify it exists before including it. Return ONLY a valid JSON array of learning materials with the following structure: [{"title": "Actual Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://real-working-url.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
-                        },
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
-                    temperature: 0.3,
-                    top_p: 0.7,
-                    frequency_penalty: 1,
-                    max_tokens: 2000,
-                    top_k: 50
-                })
-            });
-
-            if (!response.ok) {
-                console.error('❌ API request failed:', response.status, response.statusText);
-                throw new Error(`API request failed: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('✅ AI API Response received:', data);
-            const content = data.choices[0].message.content;
-            console.log('📄 AI Generated Content:', content);
-            
-            // Clean the content to extract JSON (remove markdown code blocks if present)
-            let jsonContent = content.trim();
-            if (jsonContent.startsWith('```json')) {
-                jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-            } else if (jsonContent.startsWith('```')) {
-                jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
-            }
-            
-            console.log('🧹 Cleaned JSON Content:', jsonContent);
-            
-            // Parse the JSON response
-            const materials = JSON.parse(jsonContent);
-            console.log('🎯 Parsed AI Materials:', materials);
-            
-            // Filter out fake URLs and validate materials
-            const validMaterials = materials.filter(material => {
-                const url = material.url;
-                // Check for fake/placeholder URLs
-                const fakeUrlPatterns = [
-                    'example.com',
-                    'placeholder',
-                    'fake',
-                    'test.com',
-                    'demo.com',
-                    'sample.com',
-                    'localhost',
-                    '127.0.0.1',
-                    '0.0.0.0',
-                    '#',
-                    'javascript:',
-                    'mailto:',
-                    'tel:',
-                    'data:',
-                    'file:',
-                    'ftp:',
-                    'about:',
-                    'chrome:',
-                    'edge:',
-                    'mozilla:'
-                ];
-                
-                const isFakeUrl = fakeUrlPatterns.some(pattern => 
-                    url && url.toLowerCase().includes(pattern.toLowerCase())
-                );
-                
-                // Must have a valid URL and not be fake
-                return url && 
-                       !isFakeUrl && 
-                       (url.startsWith('http://') || url.startsWith('https://')) &&
-                       url.length > 10; // Basic length check
-            });
-            
-            console.log('🔍 Filtered Valid Materials:', validMaterials);
-            
-            // Check if we have any valid materials
-            if (validMaterials.length === 0) {
-                console.warn('⚠️ No valid materials found after filtering fake URLs - using fallback materials');
-                return this.getFallbackMaterials();
-            }
-            
-            // If we have very few valid materials (less than 3), also use fallback
-            if (validMaterials.length < 3) {
-                console.warn('⚠️ Too few valid materials found - supplementing with fallback materials');
-                const fallbackMaterials = this.getFallbackMaterials();
-                return [...validMaterials, ...fallbackMaterials.slice(0, 3)];
-            }
-            
-            // Add AI generated flag and ensure proper structure
-            return validMaterials.map(material => ({
-                ...material,
-                aiGenerated: true,
-                levels: ['all'], // AI materials are generally suitable for all levels
-                category: this.mapTypeToCategory(material.type)
-            }));
-            
-        } catch (error) {
-            console.error('❌ Error calling AI API:', error);
-            console.log('🔄 Falling back to static materials...');
-            return this.getFallbackMaterials();
-        }
+        // Temporarily disable AI API due to fake URL generation issues
+        console.log('⚠️ AI API temporarily disabled due to fake URL generation');
+        console.log('📚 Using verified fallback materials instead');
+        return this.getFallbackMaterials();
     }
 
     getFallbackMaterials() {
+        const topic = this.learningPlan?.topic?.toLowerCase() || '';
+        
         // Return verified, real learning resources as fallback
         const fallbackMaterials = [
             {
@@ -561,7 +446,38 @@ class LearnWhatApp {
             }
         ];
 
-        console.log('📚 Using fallback materials with verified URLs');
+        // Add topic-specific materials if available
+        if (topic.includes('trading') || topic.includes('finance')) {
+            fallbackMaterials.push({
+                title: "Financial Markets - Yale University",
+                type: "Course",
+                description: "Comprehensive course on financial markets, covering stocks, bonds, derivatives, and market behavior.",
+                duration: "7 weeks",
+                difficulty: 3,
+                url: "https://www.coursera.org/learn/financial-markets-global",
+                icon: "fas fa-chart-line",
+                relevanceScore: 9,
+                learningOutcome: "Understand financial markets and investment strategies",
+                prerequisites: "Basic economics knowledge"
+            });
+        }
+
+        if (topic.includes('ai') || topic.includes('artificial intelligence')) {
+            fallbackMaterials.push({
+                title: "AI For Everyone - DeepLearning.AI",
+                type: "Course",
+                description: "Non-technical introduction to AI concepts, applications, and implications for business and society.",
+                duration: "4 weeks",
+                difficulty: 1,
+                url: "https://www.coursera.org/learn/ai-for-everyone",
+                icon: "fas fa-robot",
+                relevanceScore: 8,
+                learningOutcome: "Understand AI concepts and applications without technical background",
+                prerequisites: "None"
+            });
+        }
+
+        console.log('📚 Using verified fallback materials with real URLs');
         return fallbackMaterials;
     }
 
