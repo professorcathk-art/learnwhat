@@ -527,9 +527,16 @@ body {
 }
 
 .hot-topics h3 {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
     color: var(--text-primary);
     font-size: 1.2rem;
+}
+
+.topic-subtitle {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
 }
 
 .topic-grid {
