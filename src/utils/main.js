@@ -25,11 +25,6 @@ class LearnWhatApp {
     }
 
     bindEvents() {
-        // Topic selection
-        document.getElementById('topicSearch').addEventListener('input', (e) => {
-            this.handleTopicSearch(e.target.value);
-        });
-
         // Description field
         document.getElementById('learningDescription').addEventListener('input', (e) => {
             this.userData.description = e.target.value.trim();
@@ -127,12 +122,6 @@ class LearnWhatApp {
         });
     }
 
-    handleTopicSearch(value) {
-        if (value.trim()) {
-            this.userData.topic = value.trim();
-            this.updateStep1Validation();
-        }
-    }
 
     selectTopic(card) {
         document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
@@ -400,7 +389,7 @@ class LearnWhatApp {
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are an expert learning advisor with access to real-time information. Use your knowledge base to find ACTUAL, CURRENT learning resources that exist and are accessible. Search for real courses, books, videos, and tutorials from reputable platforms. Return ONLY a valid JSON array of learning materials with the following structure: [{"title": "Actual Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://real-working-url.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
+                            content: 'You are Perplexity Sonar Pro with real-time web search capabilities. You MUST search the internet to find ACTUAL, CURRENT learning resources that exist and are accessible. Do NOT make up or generate fake URLs. Use your search function to find real courses, books, videos, and tutorials from reputable platforms like Coursera, edX, Udemy, Khan Academy, YouTube, FreeCodeCamp, etc. Search for each resource to verify it exists before including it. Return ONLY a valid JSON array of learning materials with the following structure: [{"title": "Actual Resource Name", "type": "Course/Book/Video/etc", "description": "Brief description", "duration": "Time estimate", "difficulty": 1-5, "url": "https://real-working-url.com", "icon": "fas fa-icon-class", "relevanceScore": 8, "learningOutcome": "What they will achieve", "prerequisites": "Any prerequisites"}]. Do not wrap the response in markdown code blocks or add any additional text - return only the JSON array.'
                         },
                         {
                             role: 'user',
@@ -483,6 +472,13 @@ class LearnWhatApp {
             if (validMaterials.length === 0) {
                 console.warn('⚠️ No valid materials found after filtering fake URLs - using fallback materials');
                 return this.getFallbackMaterials();
+            }
+            
+            // If we have very few valid materials (less than 3), also use fallback
+            if (validMaterials.length < 3) {
+                console.warn('⚠️ Too few valid materials found - supplementing with fallback materials');
+                const fallbackMaterials = this.getFallbackMaterials();
+                return [...validMaterials, ...fallbackMaterials.slice(0, 3)];
             }
             
             // Add AI generated flag and ensure proper structure
@@ -572,7 +568,9 @@ class LearnWhatApp {
     createMaterialsPrompt() {
         const { topic, description, level, purpose, duration, intensity, materials } = this.learningPlan;
         
-        return `Search for and find REAL, CURRENTLY ACCESSIBLE learning materials for someone who wants to learn "${topic}" at a "${level}" level.
+        return `IMPORTANT: You must use your real-time web search capabilities to find ACTUAL learning resources. Do NOT make up or generate fake URLs.
+
+Search for REAL, CURRENTLY ACCESSIBLE learning materials for someone who wants to learn "${topic}" at a "${level}" level.
 
 User Details:
 - Topic: ${topic}
@@ -583,34 +581,35 @@ User Details:
 - Intensity: ${intensity}
 - Preferred Material Types: ${materials.join(', ')}
 
-SEARCH REQUIREMENTS:
-- Use your real-time search capabilities to find ACTUAL, CURRENT learning resources
-- Verify that URLs are real and accessible before including them
-- Search for resources from reputable platforms like Coursera, edX, Udemy, Khan Academy, YouTube, FreeCodeCamp, etc.
-- Look for real books on Amazon, Google Books, and other legitimate platforms
-- Find actual GitHub repositories, official documentation, and real tutorials
-- Ensure all suggested resources are currently available and accessible
+MANDATORY SEARCH REQUIREMENTS:
+1. Use your web search function to find ACTUAL, CURRENT learning resources
+2. Search for each resource individually to verify it exists and is accessible
+3. Only include resources from reputable platforms: Coursera, edX, Udemy, Khan Academy, YouTube, FreeCodeCamp, Codecademy, Pluralsight, MIT OpenCourseWare, etc.
+4. For books: Search Amazon, Google Books, or library platforms for real books
+5. For projects: Search GitHub for actual repositories
+6. For documentation: Search official company documentation sites
+7. Verify each URL works before including it
 
-Please search for and provide exactly 20 REAL, high-quality learning resources that are relevant to their specific learning goals. After finding all 20 resources, intelligently select the most appropriate ones based on:
-1. Relevance to their specific learning goals: "${description}"
-2. Time constraints (${duration} days with ${intensity} intensity)
-3. Learning progression (beginner to advanced)
+SEARCH PROCESS:
+1. Search for "${topic} course" on Coursera
+2. Search for "${topic} tutorial" on YouTube  
+3. Search for "${topic} book" on Amazon
+4. Search for "${topic} project" on GitHub
+5. Search for "${topic} documentation" on official sites
+6. Continue searching until you find 20 real resources
+
+For each resource, you MUST:
+- Use the EXACT title from the real resource
+- Provide the ACTUAL URL that you verified exists
+- Describe the REAL content (not made-up descriptions)
+- Give accurate duration, difficulty, and cost information
+
+After finding 20 REAL resources, select the most relevant 4-8 based on:
+1. Relevance to: "${description}"
+2. Time constraints: ${duration} days, ${intensity} intensity
+3. Learning progression and difficulty appropriateness
 4. Material type preferences
-5. Difficulty level appropriateness
-6. CURRENT AVAILABILITY and ACCESSIBILITY of the resource
-
-For each of the 20 resources, include:
-- Title and type (use the ACTUAL title from the real resource)
-- Brief description (describe the ACTUAL content)
-- Estimated duration (be realistic based on the actual resource)
-- Difficulty level (1-5)
-- Cost information (Free, Paid (~$X), or Free (Audit)) - be accurate
-- Relevance score (1-10, where 10 is most relevant to their goals)
-- Learning outcome (what they will actually achieve from this real resource)
-- Prerequisites (if any, based on the actual resource requirements)
-- VERIFIED URL (must be a real, working link that you have confirmed exists)
-
-After providing all 20 REAL resources, select the most relevant 4-8 resources that best fit their ${duration}-day learning timeline and ${intensity} intensity level. Consider the total time commitment and ensure a logical learning progression.
+5. Verified accessibility
 
 Return only the JSON array with the selected resources (4-8 items), no additional text.`;
     }
