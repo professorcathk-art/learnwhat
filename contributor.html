@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contributor Portal - LearnWhat</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <style>
+        .contributor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .api-section {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+        .api-endpoint {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+        .method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-right: 1rem;
+        }
+        .method.post { background: #10b981; color: white; }
+        .method.get { background: #3b82f6; color: white; }
+        .method.put { background: #f59e0b; color: white; }
+        .method.delete { background: #ef4444; color: white; }
+        .url {
+            font-family: monospace;
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+        .test-form {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .response {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="contributor-container">
+        <div class="contributor-header">
+            <div class="contributor-nav">
+                <h1><i class="fas fa-users"></i> Contributor Portal</h1>
+                <p>Manage learning resources and contribute to the community</p>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>🔐 Authentication Endpoints</h2>
+            
+            <div class="api-endpoint">
+                <span class="method post">POST</span>
+                <strong>Register Contributor</strong>
+                <div class="url">/api/contributor/register</div>
+                <p>Register a new contributor account</p>
+                
+                <div class="test-form">
+                    <h4>Test Registration</h4>
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" id="regName" value="Test Contributor">
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="regEmail" value="test@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="regPassword" value="password123">
+                    </div>
+                    <div class="form-group">
+                        <label>Expertise Areas (comma-separated):</label>
+                        <input type="text" id="regExpertise" value="AI, Machine Learning">
+                    </div>
+                    <button class="btn-primary" onclick="testRegister()">Test Register</button>
+                    <div id="regResponse" class="response" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <span class="method post">POST</span>
+                <strong>Login</strong>
+                <div class="url">/api/contributor/login</div>
+                <p>Login to contributor account</p>
+                
+                <div class="test-form">
+                    <h4>Test Login</h4>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="loginEmail" value="test@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="loginPassword" value="password123">
+                    </div>
+                    <button class="btn-primary" onclick="testLogin()">Test Login</button>
+                    <div id="loginResponse" class="response" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <span class="method get">GET</span>
+                <strong>Get Profile</strong>
+                <div class="url">/api/contributor/profile</div>
+                <p>Get contributor profile (requires login)</p>
+                <button class="btn-secondary" onclick="testProfile()">Test Profile</button>
+                <div id="profileResponse" class="response" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>📚 Resource Management Endpoints</h2>
+            
+            <div class="api-endpoint">
+                <span class="method post">POST</span>
+                <strong>Add Resource</strong>
+                <div class="url">/api/resources</div>
+                <p>Add a new learning resource (requires login)</p>
+                
+                <div class="test-form">
+                    <h4>Test Add Resource</h4>
+                    <div class="form-group">
+                        <label>Title:</label>
+                        <input type="text" id="resTitle" value="Test Learning Resource">
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea id="resDescription">This is a test learning resource for demonstration purposes.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>URL:</label>
+                        <input type="url" id="resUrl" value="https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Type:</label>
+                        <select id="resType">
+                            <option value="Course">Course</option>
+                            <option value="Book">Book</option>
+                            <option value="Video">Video</option>
+                            <option value="Article">Article</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="testAddResource()">Test Add Resource</button>
+                    <div id="addResResponse" class="response" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <span class="method get">GET</span>
+                <strong>My Resources</strong>
+                <div class="url">/api/resources/my</div>
+                <p>Get my resources (requires login)</p>
+                <button class="btn-secondary" onclick="testMyResources()">Test My Resources</button>
+                <div id="myResResponse" class="response" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>🔧 System Status</h2>
+            <button class="btn-primary" onclick="testHealth()">Check API Health</button>
+            <div id="healthResponse" class="response" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        let sessionId = null;
+
+        async function makeRequest(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include'
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const result = await response.json();
+                return { success: response.ok, data: result, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        function showResponse(elementId, response) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.textContent = JSON.stringify(response, null, 2);
+        }
+
+        async function testRegister() {
+            const data = {
+                name: document.getElementById('regName').value,
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value,
+                expertise_areas: document.getElementById('regExpertise').value.split(',').map(s => s.trim()),
+                organization: 'Test Organization',
+                bio: 'Test contributor bio'
+            };
+            
+            const response = await makeRequest('/api/contributor/register', 'POST', data);
+            showResponse('regResponse', response);
+        }
+
+        async function testLogin() {
+            const data = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            };
+            
+            const response = await makeRequest('/api/contributor/login', 'POST', data);
+            if (response.success && response.data.success) {
+                sessionId = response.data.session_id;
+            }
+            showResponse('loginResponse', response);
+        }
+
+        async function testProfile() {
+            const response = await makeRequest('/api/contributor/profile');
+            showResponse('profileResponse', response);
+        }
+
+        async function testAddResource() {
+            const data = {
+                title: document.getElementById('resTitle').value,
+                description: document.getElementById('resDescription').value,
+                url: document.getElementById('resUrl').value,
+                type: document.getElementById('resType').value,
+                difficulty: 'Beginner',
+                duration: '2 hours',
+                hashtags: ['test', 'demo'],
+                prerequisites: 'Basic knowledge',
+                learning_outcomes: 'Learn test concepts',
+                target_audience: 'Beginners'
+            };
+            
+            const response = await makeRequest('/api/resources', 'POST', data);
+            showResponse('addResResponse', response);
+        }
+
+        async function testMyResources() {
+            const response = await makeRequest('/api/resources/my');
+            showResponse('myResResponse', response);
+        }
+
+        async function testHealth() {
+            const response = await makeRequest('/api/health');
+            showResponse('healthResponse', response);
+        }
+    </script>
+</body>
+</html>

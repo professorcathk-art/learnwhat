@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Dict, List
 import uuid
 
-from learning_resources import ExtendedLearningResourcesDB, ResourceType, DifficultyLevel
+from learning_resources import LearningResourcesDB, ResourceType, DifficultyLevel
 from contributor_management import ContributorAuth, ContributorResourceManager
 from ai_integration import AIResourceRecommender, LearningPlanGenerator
 
@@ -22,7 +22,7 @@ app.secret_key = 'your-secret-key-here'  # 在生產環境中應該使用更安�
 CORS(app)
 
 # 初始化系統組件
-db = ExtendedLearningResourcesDB()
+db = LearningResourcesDB()
 auth = ContributorAuth(db)
 resource_manager = ContributorResourceManager(db, auth)
 ai_recommender = AIResourceRecommender(db, "ce74038095d6469184af3b39e3eca7b3")  # 使用現有的API密鑰
@@ -495,7 +495,10 @@ def init_sample_data():
 
 if __name__ == '__main__':
     # 初始化示例數據
-    init_sample_data()
+    try:
+        init_sample_data()
+    except Exception as e:
+        print(f"⚠️ 示例數據初始化跳過: {e}")
     
     # 啟動服務器
     print("🚀 啟動優先推薦學習資源系統API服務器...")
@@ -505,7 +508,7 @@ if __name__ == '__main__':
     print("   - AI智能推薦")
     print("   - 學習計劃生成")
     print("   - 系統統計分析")
-    print("\n🌐 API服務器運行在: http://localhost:5000")
-    print("📖 API文檔: http://localhost:5000/api/health")
+    print("\n🌐 API服務器運行在: http://localhost:5001")
+    print("📖 API文檔: http://localhost:5001/api/health")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

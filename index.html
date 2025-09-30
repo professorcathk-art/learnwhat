@@ -17,6 +17,9 @@
                 <h1><i class="fas fa-graduation-cap"></i> LearnWhat</h1>
             </div>
             <div class="nav-actions">
+                <button class="btn-secondary" id="contributorBtn">
+                    <i class="fas fa-users"></i> Contributor Portal
+                </button>
                 <button class="btn-secondary" id="loginBtn">Login</button>
                 <button class="btn-primary" id="signupBtn">Sign Up</button>
             </div>
@@ -526,6 +529,7 @@
                                         <th>Learning Material</th>
                                         <th>Type</th>
                                         <th>Duration</th>
+                                        <th>Cost</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -544,10 +548,10 @@
                                 <h3>Unlock Your Learning Plan</h3>
                                 <p>Sign up or log in to view your complete personalized learning plan and track your progress.</p>
                                 <div class="mask-actions">
-                                    <button class="btn-primary" onclick="showRegistrationModal()">
+                                    <button class="btn-primary" onclick="app.showRegistrationModal()">
                                         <i class="fas fa-user-plus"></i> Sign Up
                                     </button>
-                                    <button class="btn-secondary" onclick="showLoginModal()">
+                                    <button class="btn-secondary" onclick="app.showLoginModal()">
                                         <i class="fas fa-sign-in-alt"></i> Log In
                                     </button>
                                 </div>
@@ -629,7 +633,7 @@
                 <h1><i class="fas fa-graduation-cap"></i> LearnWhat</h1>
                 <div class="user-info">
                     <span>Welcome back, <strong id="userName">User</strong>!</span>
-                    <button class="btn-secondary" id="logoutBtn">Logout</button>
+            <button class="btn-secondary" id="logoutBtn">Logout</button>
                 </div>
             </div>
         </div>
@@ -724,23 +728,203 @@
                         <p>Start a new learning journey</p>
                     </div>
                     
-                    <div class="create-plan-options">
-                        <div class="create-option" onclick="app.startNewPlan()">
-                            <div class="option-icon">
-                                <i class="fas fa-magic"></i>
+                    <!-- Portal Learning Plan Creation Form -->
+                    <div id="portalPlanForm" class="portal-plan-form">
+                        <!-- Step 1: Learning Goals -->
+                        <div id="portalStep1" class="portal-step active">
+                            <h3>What do you want to learn?</h3>
+                            <div class="form-group">
+                                <label for="portalLearningDescription">Describe your learning goals *</label>
+                                <textarea id="portalLearningDescription" placeholder="Tell us more about what you want to learn..." required></textarea>
                             </div>
-                            <h3>AI-Powered Plan</h3>
-                            <p>Get a personalized learning plan created by our AI</p>
-                            <button class="btn-primary">Create with AI</button>
+                            
+                            <div class="form-group">
+                                <label>Which topic best describes your learning interest? (optional reference)</label>
+                                <p class="topic-subtitle">Select a category that best matches your goals (optional reference)</p>
+                                <div class="topic-grid">
+                                    <div class="topic-card" data-topic="AI & Machine Learning">
+                                        <i class="fas fa-robot"></i>
+                                        <span>AI & Machine Learning</span>
+                                    </div>
+                                    <div class="topic-card" data-topic="Web Development">
+                                        <i class="fas fa-code"></i>
+                                        <span>Web Development</span>
+                                    </div>
+                                    <div class="topic-card" data-topic="Investment & Finance">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>Investment & Finance</span>
+                                    </div>
+                                    <div class="topic-card" data-topic="Spiritual Growth">
+                                        <i class="fas fa-leaf"></i>
+                                        <span>Spiritual Growth</span>
+                                    </div>
+                                    <div class="topic-card" data-topic="Language Learning">
+                                        <i class="fas fa-language"></i>
+                                        <span>Language Learning</span>
+                                    </div>
+                                    <div class="topic-card" data-topic="Career Development">
+                                        <i class="fas fa-briefcase"></i>
+                                        <span>Career Development</span>
+                                    </div>
+                                    <div class="topic-card" data-topic="Data Science">
+                                        <i class="fas fa-database"></i>
+                                        <span>Data Science</span>
+                                    </div>
+                                    <div class="topic-card" data-topic="Digital Marketing">
+                                        <i class="fas fa-bullhorn"></i>
+                                        <span>Digital Marketing</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="portal-step-actions">
+                                <button class="btn-primary" id="portalNextStep1" disabled>Next</button>
+                            </div>
                         </div>
                         
-                        <div class="create-option" onclick="app.startCustomPlan()">
-                            <div class="option-icon">
-                                <i class="fas fa-cogs"></i>
+                        <!-- Step 2: Learning Preferences -->
+                        <div id="portalStep2" class="portal-step">
+                            <h3>Tell us about your learning goals</h3>
+                            <p>Help us create the perfect learning plan for you</p>
+                            
+                            <div class="preferences-grid">
+                                <div class="preference-group">
+                                    <h4>Your Level</h4>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="portalLevel" value="beginner"> Beginner</label>
+                                        <label><input type="radio" name="portalLevel" value="intermediate"> Intermediate</label>
+                                        <label><input type="radio" name="portalLevel" value="advanced"> Advanced</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="preference-group">
+                                    <h4>Learning Purpose</h4>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="portalPurpose" value="career"> Career Development</label>
+                                        <label><input type="radio" name="portalPurpose" value="personal"> Personal Interest</label>
+                                        <label><input type="radio" name="portalPurpose" value="academic"> Academic Study</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="preference-group">
+                                    <h4>Duration</h4>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="portalDuration" value="7"> 1 Week</label>
+                                        <label><input type="radio" name="portalDuration" value="30"> 1 Month</label>
+                                        <label><input type="radio" name="portalDuration" value="90"> 3 Months</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="preference-group">
+                                    <h4>Intensity</h4>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="portalIntensity" value="light"> Light (1-2 hours/day)</label>
+                                        <label><input type="radio" name="portalIntensity" value="moderate"> Moderate (2-4 hours/day)</label>
+                                        <label><input type="radio" name="portalIntensity" value="intensive"> Intensive (4+ hours/day)</label>
+                                    </div>
+                                </div>
                             </div>
-                            <h3>Custom Plan</h3>
-                            <p>Build your own learning plan from scratch</p>
-                            <button class="btn-secondary">Create Custom</button>
+                            
+                            <div class="portal-step-actions">
+                                <button class="btn-secondary" id="portalPrevStep2">Previous</button>
+                                <button class="btn-primary" id="portalNextStep2" disabled>Next</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Material Preferences -->
+                        <div id="portalStep3" class="portal-step">
+                            <h3>Choose your preferred learning materials</h3>
+                            <p>Select the types of resources you'd like to include</p>
+                            
+                            <div class="materials-grid">
+                                <label class="material-option">
+                                    <input type="checkbox" value="Course">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span>Online Courses</span>
+                                </label>
+                                <label class="material-option">
+                                    <input type="checkbox" value="Book">
+                                    <i class="fas fa-book"></i>
+                                    <span>Books</span>
+                                </label>
+                                <label class="material-option">
+                                    <input type="checkbox" value="Video">
+                                    <i class="fas fa-play-circle"></i>
+                                    <span>Videos</span>
+                                </label>
+                                <label class="material-option">
+                                    <input type="checkbox" value="Article">
+                                    <i class="fas fa-newspaper"></i>
+                                    <span>Articles</span>
+                                </label>
+                                <label class="material-option">
+                                    <input type="checkbox" value="Project">
+                                    <i class="fas fa-project-diagram"></i>
+                                    <span>Projects</span>
+                                </label>
+                                <label class="material-option">
+                                    <input type="checkbox" value="Tutorial">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    <span>Tutorials</span>
+                                </label>
+                            </div>
+                            
+                            <div class="portal-step-actions">
+                                <button class="btn-secondary" id="portalPrevStep3">Previous</button>
+                                <button class="btn-primary" id="portalNextStep3" disabled>Generate Plan</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 4: Generated Plan -->
+                        <div id="portalStep4" class="portal-step">
+                            <h3>Your Personalized Learning Plan</h3>
+                            <p>Here's your customized learning journey</p>
+                            
+                            <div class="plan-summary">
+                                <div class="summary-item">
+                                    <h4>Topic</h4>
+                                    <p id="portalPlanTopic">-</p>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>Duration</h4>
+                                    <p id="portalPlanDuration">-</p>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>Materials</h4>
+                                    <p id="portalPlanMaterials">-</p>
+                                </div>
+                            </div>
+                            
+                            <div class="learning-plan-table">
+                                <div class="plan-header">
+                                    <h3>Your Daily Learning Plan</h3>
+                                    <button class="btn-secondary" id="portalRegeneratePlan">
+                                        <i class="fas fa-sync-alt"></i> Regenerate Plan
+                                    </button>
+                                </div>
+                                <div class="table-container">
+                                    <table class="learning-table" id="portalLearningTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Day</th>
+                                                <th>Learning Material</th>
+                                                <th>Type</th>
+                                                <th>Duration</th>
+                                                <th>Cost</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="portalLearningTableBody">
+                                            <!-- Learning plan will be generated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="portal-step-actions">
+                                <button class="btn-secondary" id="portalPrevStep4">Previous</button>
+                                <button class="btn-primary" id="portalSavePlan">Save Plan</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -750,8 +934,8 @@
                     <div class="section-header">
                         <h2>Learning Progress</h2>
                         <p>Track your learning achievements</p>
-                    </div>
-                    
+            </div>
+            
                     <div class="progress-overview">
                         <div class="current-plan" id="currentPlanSection">
                             <!-- Current plan progress will be shown here -->
@@ -762,6 +946,164 @@
         </div>
     </div>
 
+    <!-- Contributor Portal Modal -->
+    <div id="contributorModal" class="modal">
+        <div class="modal-content contributor-modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-users"></i> Contributor Portal</h2>
+                <button class="modal-close" onclick="closeContributorModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="contributor-tabs">
+                    <button class="tab-btn active" onclick="switchContributorTab('login')">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button class="tab-btn" onclick="switchContributorTab('register')">
+                        <i class="fas fa-user-plus"></i> Register
+                    </button>
+                    <button class="tab-btn" onclick="switchContributorTab('resources')">
+                        <i class="fas fa-book"></i> My Resources
+                    </button>
+                </div>
+
+                <!-- Login Tab -->
+                <div id="contributorLogin" class="contributor-tab active">
+                    <form id="contributorLoginForm">
+                        <div class="form-group">
+                            <label for="contributorEmail">Email</label>
+                            <input type="email" id="contributorEmail" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contributorPassword">Password</label>
+                            <input type="password" id="contributorPassword" name="password" required>
+                        </div>
+                        <button type="submit" class="btn-primary">Login</button>
+                    </form>
+                </div>
+
+                <!-- Register Tab -->
+                <div id="contributorRegister" class="contributor-tab">
+                    <form id="contributorRegisterForm">
+                        <div class="form-group">
+                            <label for="contributorName">Full Name</label>
+                            <input type="text" id="contributorName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contributorRegEmail">Email</label>
+                            <input type="email" id="contributorRegEmail" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contributorRegPassword">Password</label>
+                            <input type="password" id="contributorRegPassword" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contributorExpertise">Expertise Areas (comma-separated)</label>
+                            <input type="text" id="contributorExpertise" name="expertise_areas" placeholder="AI, Machine Learning, Python">
+                        </div>
+                        <div class="form-group">
+                            <label for="contributorOrg">Organization</label>
+                            <input type="text" id="contributorOrg" name="organization">
+                        </div>
+                        <div class="form-group">
+                            <label for="contributorBio">Bio</label>
+                            <textarea id="contributorBio" name="bio" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Register</button>
+                    </form>
+                </div>
+
+                <!-- Resources Tab -->
+                <div id="contributorResources" class="contributor-tab">
+                    <div class="contributor-actions">
+                        <button class="btn-primary" onclick="showAddResourceForm()">
+                            <i class="fas fa-plus"></i> Add Resource
+                        </button>
+                        <button class="btn-secondary" onclick="loadMyResources()">
+                            <i class="fas fa-refresh"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <!-- Add Resource Form -->
+                    <div id="addResourceForm" class="add-resource-form" style="display: none;">
+                        <h3>Add New Learning Resource</h3>
+                        <form id="newResourceForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="resourceTitle">Title</label>
+                                    <input type="text" id="resourceTitle" name="title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="resourceType">Type</label>
+                                    <select id="resourceType" name="type" required>
+                                        <option value="Course">Course</option>
+                                        <option value="Book">Book</option>
+                                        <option value="Video">Video</option>
+                                        <option value="Article">Article</option>
+                                        <option value="Tutorial">Tutorial</option>
+                                        <option value="Project">Project</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="resourceDescription">Description</label>
+                                <textarea id="resourceDescription" name="description" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="resourceUrl">URL</label>
+                                <input type="url" id="resourceUrl" name="url" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="resourceDifficulty">Difficulty</label>
+                                    <select id="resourceDifficulty" name="difficulty">
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="resourceDuration">Duration</label>
+                                    <input type="text" id="resourceDuration" name="duration" placeholder="e.g., 2 hours, 1 week">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="resourceHashtags">Hashtags (comma-separated)</label>
+                                <input type="text" id="resourceHashtags" name="hashtags" placeholder="AI, machine-learning, python">
+                            </div>
+                            <div class="form-group">
+                                <label for="resourcePrerequisites">Prerequisites</label>
+                                <input type="text" id="resourcePrerequisites" name="prerequisites" placeholder="Basic programming knowledge">
+                            </div>
+                            <div class="form-group">
+                                <label for="resourceOutcomes">Learning Outcomes</label>
+                                <input type="text" id="resourceOutcomes" name="learning_outcomes" placeholder="What will students learn?">
+                            </div>
+                            <div class="form-group">
+                                <label for="resourceAudience">Target Audience</label>
+                                <input type="text" id="resourceAudience" name="target_audience" placeholder="Beginners, Professionals, Students">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">Add Resource</button>
+                                <button type="button" class="btn-secondary" onclick="hideAddResourceForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Resources List -->
+                    <div id="myResourcesList" class="resources-list">
+                        <div class="loading-message">
+                            <i class="fas fa-spinner fa-spin"></i> Loading your resources...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="contributorStatus" class="contributor-status" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="src/utils/main.js"></script>
+    <script src="src/utils/contributor.js"></script>
 </body>
 </html>

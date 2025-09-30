@@ -108,6 +108,11 @@ class LearnWhatApp {
             this.showRegistrationModal();
         });
 
+        // Contributor portal button
+        document.getElementById('contributorBtn').addEventListener('click', () => {
+            // This will be handled by contributor.js
+        });
+
         document.getElementById('logoutBtn').addEventListener('click', () => {
             this.logout();
         });
@@ -118,6 +123,9 @@ class LearnWhatApp {
                 this.switchPortalSection(item.dataset.section);
             });
         });
+
+        // Portal form events
+        this.bindPortalFormEvents();
 
         // Modal close
         document.addEventListener('click', (e) => {
@@ -488,7 +496,8 @@ class LearnWhatApp {
                 icon: "fas fa-laptop-code",
                 relevanceScore: 9,
                 learningOutcome: "Master fundamental machine learning algorithms and techniques",
-                prerequisites: "Basic programming knowledge, linear algebra, statistics"
+                prerequisites: "Basic programming knowledge, linear algebra, statistics",
+                cost: "Free (Audit) / $49/month (Certificate)"
             },
             {
                 title: "Python for Data Science - IBM",
@@ -500,7 +509,8 @@ class LearnWhatApp {
                 icon: "fas fa-code",
                 relevanceScore: 8,
                 learningOutcome: "Proficient in Python for data analysis and machine learning",
-                prerequisites: "Basic programming knowledge"
+                prerequisites: "Basic programming knowledge",
+                cost: "Free (Audit) / $49/month (Certificate)"
             },
             {
                 title: "Deep Learning Specialization - DeepLearning.AI",
@@ -512,7 +522,8 @@ class LearnWhatApp {
                 icon: "fas fa-brain",
                 relevanceScore: 9,
                 learningOutcome: "Build and train deep neural networks for various applications",
-                prerequisites: "Machine learning basics, Python programming"
+                prerequisites: "Machine learning basics, Python programming",
+                cost: "$49/month (Coursera Plus)"
             },
             {
                 title: "FreeCodeCamp - Machine Learning with Python",
@@ -524,7 +535,21 @@ class LearnWhatApp {
                 icon: "fas fa-graduation-cap",
                 relevanceScore: 8,
                 learningOutcome: "Practical machine learning skills with hands-on projects",
-                prerequisites: "Python programming basics"
+                prerequisites: "Python programming basics",
+                cost: "Free"
+            },
+            {
+                title: "Machine Learning & Deep Learning in Trading - Quantra",
+                type: "Course",
+                description: "Comprehensive course on applying machine learning and deep learning techniques to algorithmic trading and quantitative finance.",
+                duration: "6 months",
+                difficulty: 4,
+                url: "https://quantra.quantinsti.com/learning-track/machine-learning-deep-learning-trading-2",
+                icon: "fas fa-chart-line",
+                relevanceScore: 10,
+                learningOutcome: "Build ML/DL models for trading strategies and risk management",
+                prerequisites: "Python, statistics, basic finance knowledge",
+                cost: "₹25,000 (approx. $300)"
             },
             {
                 title: "Khan Academy - Statistics and Probability",
@@ -536,7 +561,8 @@ class LearnWhatApp {
                 icon: "fas fa-chart-bar",
                 relevanceScore: 7,
                 learningOutcome: "Strong foundation in statistics for data analysis",
-                prerequisites: "Basic math knowledge"
+                prerequisites: "Basic math knowledge",
+                cost: "Free"
             }
         ];
 
@@ -552,7 +578,8 @@ class LearnWhatApp {
                 icon: "fas fa-chart-line",
                 relevanceScore: 8,
                 learningOutcome: "Understand financial markets and investment strategies",
-                prerequisites: "Basic economics knowledge"
+                prerequisites: "Basic economics knowledge",
+                cost: "Free (Audit) / $49/month (Certificate)"
             },
             {
                 title: "AI For Everyone - DeepLearning.AI",
@@ -564,7 +591,8 @@ class LearnWhatApp {
                 icon: "fas fa-robot",
                 relevanceScore: 8,
                 learningOutcome: "Understand AI concepts and applications without technical background",
-                prerequisites: "None"
+                prerequisites: "None",
+                cost: "Free (Audit) / $49/month (Certificate)"
             },
             {
                 title: "Web Development Bootcamp - Colt Steele",
@@ -576,7 +604,8 @@ class LearnWhatApp {
                 icon: "fas fa-code",
                 relevanceScore: 8,
                 learningOutcome: "Build full-stack web applications from scratch",
-                prerequisites: "Basic computer skills"
+                prerequisites: "Basic computer skills",
+                cost: "$89.99 (Udemy)"
             },
             {
                 title: "Data Science Specialization - Johns Hopkins University",
@@ -588,7 +617,8 @@ class LearnWhatApp {
                 icon: "fas fa-chart-bar",
                 relevanceScore: 8,
                 learningOutcome: "Master data science tools and techniques",
-                prerequisites: "Basic programming knowledge"
+                prerequisites: "Basic programming knowledge",
+                cost: "$49/month (Coursera Plus)"
             },
             {
                 title: "CS50's Introduction to Computer Science - Harvard University",
@@ -600,7 +630,8 @@ class LearnWhatApp {
                 icon: "fas fa-laptop-code",
                 relevanceScore: 8,
                 learningOutcome: "Strong foundation in computer science and programming",
-                prerequisites: "None"
+                prerequisites: "None",
+                cost: "Free (Audit) / $199 (Certificate)"
             }
         );
 
@@ -1940,12 +1971,12 @@ Return only a JSON array with the selected resources, no additional text.`;
                 <td class="day-cell">Day ${material.day}</td>
                 <td class="material-cell">
                     ${materialCellContent}
-                    ${material.cost ? `<div class="cost-info">${material.cost}</div>` : ''}
                 </td>
                 <td class="type-cell">
                     <span class="type-badge ${material.isRestDay ? 'rest-day-badge' : ''}">${material.type}</span>
                 </td>
                 <td class="duration-cell">${material.duration}</td>
+                <td class="cost-cell">${material.cost || 'N/A'}</td>
                 <td class="status-cell">
                     <input type="checkbox" class="status-checkbox" ${material.completed ? 'checked' : ''} 
                            onchange="app.toggleMaterialStatus(${index})">
@@ -2498,6 +2529,9 @@ Return only a JSON array with the selected resources, no additional text.`;
             case 'progress':
                 this.loadProgressOverview();
                 break;
+            case 'create':
+                this.resetPortalForm();
+                break;
         }
     }
 
@@ -2704,6 +2738,7 @@ Return only a JSON array with the selected resources, no additional text.`;
                                     <th>Learning Material</th>
                                     <th>Type</th>
                                     <th>Duration</th>
+                                    <th>Cost</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -2755,6 +2790,7 @@ Return only a JSON array with the selected resources, no additional text.`;
                 <td class="material-cell">${materialCellContent}</td>
                 <td class="type-cell">${material.type}</td>
                 <td class="duration-cell">${material.duration}</td>
+                <td class="cost-cell">${material.cost || 'N/A'}</td>
                 <td class="action-cell">
                     <label class="checkbox-container">
                         <input type="checkbox" ${material.completed ? 'checked' : ''} 
@@ -2896,6 +2932,261 @@ Return only a JSON array with the selected resources, no additional text.`;
                 console.log('✅ Regenerate button reset');
             }, 1000);
         }, 500);
+    }
+
+    // Portal Form Methods
+    bindPortalFormEvents() {
+        // Portal form step navigation
+        const portalNextStep1 = document.getElementById('portalNextStep1');
+        const portalNextStep2 = document.getElementById('portalNextStep2');
+        const portalNextStep3 = document.getElementById('portalNextStep3');
+        const portalPrevStep2 = document.getElementById('portalPrevStep2');
+        const portalPrevStep3 = document.getElementById('portalPrevStep3');
+        const portalPrevStep4 = document.getElementById('portalPrevStep4');
+        const portalSavePlan = document.getElementById('portalSavePlan');
+        const portalRegeneratePlan = document.getElementById('portalRegeneratePlan');
+
+        if (portalNextStep1) {
+            portalNextStep1.addEventListener('click', () => this.nextPortalStep(1));
+        }
+        if (portalNextStep2) {
+            portalNextStep2.addEventListener('click', () => this.nextPortalStep(2));
+        }
+        if (portalNextStep3) {
+            portalNextStep3.addEventListener('click', () => this.nextPortalStep(3));
+        }
+        if (portalPrevStep2) {
+            portalPrevStep2.addEventListener('click', () => this.prevPortalStep(2));
+        }
+        if (portalPrevStep3) {
+            portalPrevStep3.addEventListener('click', () => this.prevPortalStep(3));
+        }
+        if (portalPrevStep4) {
+            portalPrevStep4.addEventListener('click', () => this.prevPortalStep(4));
+        }
+        if (portalSavePlan) {
+            portalSavePlan.addEventListener('click', () => this.savePortalPlan());
+        }
+        if (portalRegeneratePlan) {
+            portalRegeneratePlan.addEventListener('click', () => this.regeneratePortalPlan());
+        }
+
+        // Portal form input events
+        const portalDescription = document.getElementById('portalLearningDescription');
+        if (portalDescription) {
+            portalDescription.addEventListener('input', () => this.updatePortalStep1Validation());
+        }
+
+        // Portal topic cards
+        document.querySelectorAll('#portalStep1 .topic-card').forEach(card => {
+            card.addEventListener('click', () => this.selectPortalTopic(card));
+        });
+
+        // Portal form radio buttons
+        document.querySelectorAll('input[name^="portal"]').forEach(input => {
+            input.addEventListener('change', () => this.updatePortalFormValidation());
+        });
+
+        // Portal material checkboxes
+        document.querySelectorAll('#portalStep3 input[type="checkbox"]').forEach(input => {
+            input.addEventListener('change', () => this.updatePortalStep3Validation());
+        });
+    }
+
+    resetPortalForm() {
+        this.portalCurrentStep = 1;
+        this.portalUserData = {
+            topic: '',
+            description: '',
+            level: '',
+            purpose: '',
+            duration: '',
+            intensity: '',
+            materials: []
+        };
+        this.updatePortalStepVisibility();
+    }
+
+    nextPortalStep(currentStep) {
+        if (this.validatePortalStep(currentStep)) {
+            this.portalCurrentStep = currentStep + 1;
+            this.updatePortalStepVisibility();
+            
+            if (this.portalCurrentStep === 4) {
+                this.generatePortalLearningPlan();
+            }
+        }
+    }
+
+    prevPortalStep(currentStep) {
+        this.portalCurrentStep = currentStep - 1;
+        this.updatePortalStepVisibility();
+    }
+
+    updatePortalStepVisibility() {
+        // Hide all portal steps
+        document.querySelectorAll('.portal-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        // Show current step
+        const currentStepElement = document.getElementById(`portalStep${this.portalCurrentStep}`);
+        if (currentStepElement) {
+            currentStepElement.classList.add('active');
+        }
+    }
+
+    selectPortalTopic(card) {
+        document.querySelectorAll('#portalStep1 .topic-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        this.portalUserData.topic = card.dataset.topic;
+        this.updatePortalStep1Validation();
+    }
+
+    updatePortalStep1Validation() {
+        const description = document.getElementById('portalLearningDescription')?.value.trim() || '';
+        const topicSelected = document.querySelector('#portalStep1 .topic-card.selected') !== null;
+        const nextBtn = document.getElementById('portalNextStep1');
+        
+        if (nextBtn) {
+            nextBtn.disabled = !(description.length > 10 || topicSelected);
+        }
+    }
+
+    updatePortalFormValidation() {
+        this.updatePortalStep2Validation();
+    }
+
+    updatePortalStep2Validation() {
+        const level = document.querySelector('input[name="portalLevel"]:checked');
+        const purpose = document.querySelector('input[name="portalPurpose"]:checked');
+        const duration = document.querySelector('input[name="portalDuration"]:checked');
+        const intensity = document.querySelector('input[name="portalIntensity"]:checked');
+        const nextBtn = document.getElementById('portalNextStep2');
+        
+        if (nextBtn) {
+            nextBtn.disabled = !(level && purpose && duration && intensity);
+        }
+    }
+
+    updatePortalStep3Validation() {
+        const materials = document.querySelectorAll('#portalStep3 input[type="checkbox"]:checked');
+        const nextBtn = document.getElementById('portalNextStep3');
+        
+        if (nextBtn) {
+            nextBtn.disabled = materials.length === 0;
+        }
+    }
+
+    validatePortalStep(step) {
+        switch(step) {
+            case 1:
+                const description = document.getElementById('portalLearningDescription')?.value.trim() || '';
+                const topicSelected = document.querySelector('#portalStep1 .topic-card.selected') !== null;
+                return description.length > 10 || topicSelected;
+            case 2:
+                return document.querySelector('input[name="portalLevel"]:checked') &&
+                       document.querySelector('input[name="portalPurpose"]:checked') &&
+                       document.querySelector('input[name="portalDuration"]:checked') &&
+                       document.querySelector('input[name="portalIntensity"]:checked');
+            case 3:
+                return document.querySelectorAll('#portalStep3 input[type="checkbox"]:checked').length > 0;
+            default:
+                return true;
+        }
+    }
+
+    async generatePortalLearningPlan() {
+        // Collect portal form data
+        this.portalUserData.description = document.getElementById('portalLearningDescription')?.value.trim() || '';
+        this.portalUserData.level = document.querySelector('input[name="portalLevel"]:checked')?.value || '';
+        this.portalUserData.purpose = document.querySelector('input[name="portalPurpose"]:checked')?.value || '';
+        this.portalUserData.duration = document.querySelector('input[name="portalDuration"]:checked')?.value || '';
+        this.portalUserData.intensity = document.querySelector('input[name="portalIntensity"]:checked')?.value || '';
+        
+        this.portalUserData.materials = Array.from(document.querySelectorAll('#portalStep3 input[type="checkbox"]:checked'))
+            .map(input => input.value);
+
+        // Update plan summary
+        document.getElementById('portalPlanTopic').textContent = this.portalUserData.topic || 'Custom Learning Plan';
+        document.getElementById('portalPlanDuration').textContent = `${this.portalUserData.duration} days`;
+        document.getElementById('portalPlanMaterials').textContent = this.portalUserData.materials.join(', ');
+
+        // Generate learning plan using existing method
+        this.userData = { ...this.portalUserData };
+        await this.generateLearningMaterials();
+        this.displayPortalLearningPlan();
+    }
+
+    displayPortalLearningPlan() {
+        const tableBody = document.getElementById('portalLearningTableBody');
+        if (!tableBody || !this.dailyPlan) return;
+
+        tableBody.innerHTML = this.dailyPlan.map((day, index) => {
+            const material = day.material;
+            return `
+                <tr>
+                    <td class="day-cell">Day ${index + 1}</td>
+                    <td class="material-cell">
+                        <div class="material-title">${material.title}</div>
+                        <div class="material-description">${material.description}</div>
+                    </td>
+                    <td class="type-cell">
+                        <span class="type-badge">${material.type}</span>
+                    </td>
+                    <td class="duration-cell">${material.duration}</td>
+                    <td class="cost-cell">${material.cost || 'Free'}</td>
+                    <td class="status-cell">
+                        <input type="checkbox" class="status-checkbox" onchange="app.updatePortalProgress(${index}, this.checked)">
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    savePortalPlan() {
+        if (!this.dailyPlan) return;
+
+        const plan = {
+            id: Date.now(),
+            topic: this.portalUserData.topic || 'Custom Learning Plan',
+            description: this.portalUserData.description,
+            level: this.portalUserData.level,
+            purpose: this.portalUserData.purpose,
+            duration: this.portalUserData.duration,
+            intensity: this.portalUserData.intensity,
+            materials: this.portalUserData.materials,
+            dailyPlan: this.dailyPlan,
+            createdAt: new Date().toISOString(),
+            progress: {}
+        };
+
+        // Save to localStorage
+        const plans = this.getUserPlans();
+        plans.push(plan);
+        localStorage.setItem('userPlans', JSON.stringify(plans));
+
+        // Show success message and redirect to plans
+        alert('Learning plan saved successfully!');
+        this.switchPortalSection('plans');
+    }
+
+    regeneratePortalPlan() {
+        this.generatePortalLearningPlan();
+    }
+
+    updatePortalProgress(dayIndex, completed) {
+        // Update progress for the specific day
+        const plans = this.getUserPlans();
+        const currentPlan = plans[plans.length - 1]; // Get the most recent plan
+        
+        if (currentPlan) {
+            if (!currentPlan.progress) {
+                currentPlan.progress = {};
+            }
+            currentPlan.progress[dayIndex] = completed;
+            localStorage.setItem('userPlans', JSON.stringify(plans));
+        }
     }
 }
 

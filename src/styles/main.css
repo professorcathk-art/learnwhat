@@ -1122,6 +1122,14 @@ body {
     font-size: 0.9rem;
 }
 
+.cost-cell {
+    min-width: 120px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
 .status-cell {
     min-width: 100px;
 }
@@ -2538,17 +2546,18 @@ body {
 /* Learning Plan Mask */
 .learning-plan-mask {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.95);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10;
     border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .learning-plan-table {
@@ -2557,8 +2566,9 @@ body {
 
 .mask-content {
     text-align: center;
-    padding: 2rem;
-    max-width: 400px;
+    padding: 1.5rem;
+    max-width: 350px;
+    min-width: 300px;
 }
 
 .mask-icon {
@@ -2614,6 +2624,185 @@ body {
 
 .modal-footer a:hover {
     text-decoration: underline;
+}
+
+/* Portal Plan Form Styles */
+.portal-plan-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.portal-step {
+    display: none;
+    padding: 2rem;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.portal-step.active {
+    display: block;
+}
+
+.portal-step h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.portal-step p {
+    margin: 0 0 2rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.portal-step-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.portal-step-actions .btn-primary,
+.portal-step-actions .btn-secondary {
+    min-width: 120px;
+}
+
+/* Portal Form Groups */
+.portal-plan-form .form-group {
+    margin-bottom: 2rem;
+}
+
+.portal-plan-form .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.portal-plan-form .form-group textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+.portal-plan-form .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+/* Portal Preferences Grid */
+.preferences-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.preference-group h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: normal;
+}
+
+.radio-group label:hover {
+    border-color: var(--accent-color);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.radio-group input[type="radio"] {
+    margin: 0;
+}
+
+.radio-group input[type="radio"]:checked + span,
+.radio-group label:has(input[type="radio"]:checked) {
+    border-color: var(--accent-color);
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+/* Portal Materials Grid */
+.materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.material-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.material-option:hover {
+    border-color: var(--accent-color);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.material-option input[type="checkbox"] {
+    display: none;
+}
+
+.material-option i {
+    font-size: 2rem;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+.material-option span {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.material-option:has(input[type="checkbox"]:checked) {
+    border-color: var(--accent-color);
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.material-option:has(input[type="checkbox"]:checked) i {
+    color: var(--accent-color);
+}
+
+.material-option:has(input[type="checkbox"]:checked) span {
+    color: var(--accent-color);
+    font-weight: 600;
 }
 
 /* API Status Indicator */
@@ -2863,6 +3052,295 @@ body {
 
 .step.active {
     animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Contributor Portal Styles */
+.contributor-modal-content {
+    max-width: 800px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.contributor-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.contributor-tab {
+    display: none;
+}
+
+.contributor-tab.active {
+    display: block;
+}
+
+.contributor-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-resource-form {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.add-resource-form h3 {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.resources-list {
+    min-height: 200px;
+}
+
+.resource-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.resource-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.resource-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.resource-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.resource-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.resource-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.resource-status.pending_review {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.resource-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.resource-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.resource-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.resource-meta-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.resource-meta-value {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.resource-hashtags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.resource-hashtag {
+    background: var(--accent-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.resource-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.contributor-status {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.contributor-status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.contributor-status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.contributor-status.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.loading-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.loading-message i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.empty-resources {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-resources i {
+    font-size: 3rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.empty-resources h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+/* Responsive Design for Contributor Portal */
+@media (max-width: 768px) {
+    .contributor-modal-content {
+        width: 98%;
+        margin: 1rem;
+    }
+    
+    .contributor-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        justify-content: flex-start;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .contributor-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .resource-meta {
+        grid-template-columns: 1fr;
+    }
+    
+    .resource-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .resource-actions {
+        justify-content: center;
+    }
 }
 
 /* Utility Classes */
