@@ -22,7 +22,7 @@ class LearnWhatApp {
         this.bindEvents();
         this.loadUserData();
         this.updateStepVisibility();
-        this.updateLearningPlanMask();
+        this.updateLearningPlanPreview();
     }
 
     bindEvents() {
@@ -2221,7 +2221,45 @@ Return only a JSON array with the selected resources, no additional text.`;
     }
 
     showLoginModal() {
+        // Check if user might be registered
+        this.checkUserRegistration();
         document.getElementById('loginModal').classList.add('active');
+    }
+
+    checkUserRegistration() {
+        // Check if there are any registered users in localStorage
+        const registeredUsers = localStorage.getItem('learnwhat-registered-users');
+        const currentUser = localStorage.getItem('learnwhat-current-user');
+        
+        if (registeredUsers && !currentUser) {
+            const users = JSON.parse(registeredUsers);
+            if (users.length > 0) {
+                // Show a helpful message
+                setTimeout(() => {
+                    this.showRegistrationPrompt();
+                }, 500);
+            }
+        }
+    }
+
+    showRegistrationPrompt() {
+        const loginModal = document.getElementById('loginModal');
+        const existingFooter = loginModal.querySelector('.modal-footer');
+        
+        if (existingFooter) {
+            existingFooter.remove();
+        }
+        
+        const footer = document.createElement('div');
+        footer.className = 'modal-footer';
+        footer.innerHTML = `
+            <div class="registration-prompt">
+                <p><i class="fas fa-info-circle"></i> Already have an account? Try logging in with your registered email.</p>
+                <p>If you're having trouble, you can <a href="#" onclick="app.showRegistrationModal()">create a new account</a>.</p>
+            </div>
+        `;
+        
+        loginModal.querySelector('.modal-body').appendChild(footer);
     }
 
     handleRegistration(e) {
@@ -2236,11 +2274,28 @@ Return only a JSON array with the selected resources, no additional text.`;
             alert('Passwords do not match!');
             return;
         }
+
+        // Check if user already exists
+        const existingUsers = JSON.parse(localStorage.getItem('learnwhat-registered-users') || '[]');
+        const userExists = existingUsers.find(user => user.email === userData.email);
+        
+        if (userExists) {
+            alert('An account with this email already exists. Please try logging in instead.');
+            this.closeModal();
+            this.showLoginModal();
+            return;
+        }
         
         this.currentUser = {
             name: userData.fullName,
-            email: userData.email
+            email: userData.email,
+            id: Date.now(),
+            registeredAt: new Date().toISOString()
         };
+
+        // Add to registered users list
+        existingUsers.push(this.currentUser);
+        localStorage.setItem('learnwhat-registered-users', JSON.stringify(existingUsers));
         
         localStorage.setItem('learnwhat-user', JSON.stringify(this.currentUser));
         localStorage.setItem('learnwhat-plan', JSON.stringify(this.learningPlan));
@@ -2280,7 +2335,7 @@ Return only a JSON array with the selected resources, no additional text.`;
         
         document.getElementById('userName').textContent = this.currentUser.name;
         this.loadUserPortalData();
-        this.updateLearningPlanMask();
+        this.updateLearningPlanPreview();
     }
 
     loadDashboardData() {
@@ -2292,15 +2347,19 @@ Return only a JSON array with the selected resources, no additional text.`;
         }
     }
 
-    updateLearningPlanMask() {
-        const mask = document.getElementById('learningPlanMask');
-        if (!mask) return;
+    updateLearningPlanPreview() {
+        const preview = document.getElementById('learningPlanPreview');
+        const table = document.querySelector('.learning-plan-table');
         
-        // 如果用戶已登錄，隱藏遮罩
+        if (!preview || !table) return;
+        
+        // 如果用戶已登錄，顯示完整表格，隱藏預覽
         if (this.currentUser) {
-            mask.style.display = 'none';
+            preview.style.display = 'none';
+            table.style.display = 'block';
         } else {
-            mask.style.display = 'flex';
+            preview.style.display = 'block';
+            table.style.display = 'none';
         }
     }
 
@@ -2477,7 +2536,7 @@ Return only a JSON array with the selected resources, no additional text.`;
         
         this.currentStep = 1;
         this.updateStepVisibility();
-        this.updateLearningPlanMask(); // 更新遮罩狀態
+        this.updateLearningPlanPreview(); // 更新遮罩狀態
     }
 
     loadUserData() {

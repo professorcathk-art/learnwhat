@@ -2543,21 +2543,138 @@ body {
     font-size: 0.9rem;
 }
 
-/* Learning Plan Mask */
-.learning-plan-mask {
+/* Learning Plan Preview */
+.learning-plan-preview {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    margin-top: 2rem;
+}
+
+.preview-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.preview-header h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.preview-header p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.preview-content {
+    position: relative;
+}
+
+.preview-days {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.preview-day {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.day-number {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 60px;
+    text-align: center;
+}
+
+.day-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.content-placeholder {
+    height: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+    border-radius: 4px;
+}
+
+.content-placeholder.short {
+    width: 60%;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.preview-mask {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(10px);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 10;
+}
+
+.preview-mask .mask-content {
+    text-align: center;
+    padding: 2rem;
+    max-width: 400px;
+}
+
+.preview-mask .mask-icon {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.preview-mask h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.preview-mask p {
+    margin: 0 0 2rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.preview-mask .mask-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.preview-mask .mask-actions .btn-primary,
+.preview-mask .mask-actions .btn-secondary {
+    min-width: 120px;
 }
 
 .learning-plan-table {
@@ -2608,6 +2725,35 @@ body {
     padding-top: 1.5rem;
     border-top: 1px solid var(--border-color);
     text-align: center;
+}
+
+.registration-prompt {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.registration-prompt p {
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.registration-prompt i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+.registration-prompt a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.registration-prompt a:hover {
+    text-decoration: underline;
 }
 
 .modal-footer p {
