@@ -250,6 +250,24 @@ class LearningResourcesDB:
             )
         return None
     
+    def update_contributor_last_active(self, contributor_id: str) -> bool:
+        """更新貢獻者最後活躍時間"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                UPDATE contributors 
+                SET last_active = ?
+                WHERE id = ?
+            ''', (datetime.now().isoformat(), contributor_id))
+            
+            conn.commit()
+            conn.close()
+            return True
+        except Exception:
+            return False
+    
     def add_learning_resource(self, resource: LearningResource) -> bool:
         """添加學習資源"""
         try:
