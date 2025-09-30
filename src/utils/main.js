@@ -299,7 +299,11 @@ class LearnWhatApp {
 
     async generateLearningMaterials() {
         const materialsGrid = document.getElementById('materialsGrid');
-        materialsGrid.innerHTML = '<div class="loading-materials"><i class="fas fa-spinner fa-spin"></i> Generating personalized learning materials with AI...</div>';
+        
+        // Check if materialsGrid exists (main questionnaire context)
+        if (materialsGrid) {
+            materialsGrid.innerHTML = '<div class="loading-materials"><i class="fas fa-spinner fa-spin"></i> Generating personalized learning materials with AI...</div>';
+        }
         
         try {
             // First, get fallback materials
@@ -311,9 +315,13 @@ class LearnWhatApp {
             // Combine AI materials with fallback materials
             const allMaterials = [...aiMaterials, ...fallbackMaterials].slice(0, 8);
             
-            materialsGrid.innerHTML = '';
+            // For portal context, generate daily plan from materials
+            this.generateDailyPlanFromMaterials(allMaterials);
             
-            allMaterials.forEach(material => {
+            if (materialsGrid) {
+                materialsGrid.innerHTML = '';
+                
+                allMaterials.forEach(material => {
                 const materialCard = document.createElement('div');
                 materialCard.className = 'material-card';
                 materialCard.innerHTML = `
@@ -340,14 +348,20 @@ class LearnWhatApp {
                     </a>
                 `;
                 materialsGrid.appendChild(materialCard);
-            });
+                });
+            }
         } catch (error) {
             console.error('Error generating AI materials:', error);
             // Fallback to static materials
             const fallbackMaterials = this.getRecommendedMaterials();
-            materialsGrid.innerHTML = '';
             
-            fallbackMaterials.forEach(material => {
+            // For portal context, generate daily plan from fallback materials
+            this.generateDailyPlanFromMaterials(fallbackMaterials);
+            
+            if (materialsGrid) {
+                materialsGrid.innerHTML = '';
+                
+                fallbackMaterials.forEach(material => {
                 const materialCard = document.createElement('div');
                 materialCard.className = 'material-card';
                 materialCard.innerHTML = `
@@ -374,8 +388,18 @@ class LearnWhatApp {
                     </a>
                 `;
                 materialsGrid.appendChild(materialCard);
-            });
+                });
+            }
         }
+    }
+    
+    generateDailyPlanFromMaterials(materials) {
+        if (!materials || materials.length === 0) return;
+        
+        const duration = parseInt(this.userData?.duration || this.portalUserData?.duration) || 30;
+        this.dailyPlan = this.createDailyPlan(materials);
+        
+        console.log('✅ Daily plan generated from materials:', this.dailyPlan);
     }
 
     generateDifficultyDots(difficulty) {
