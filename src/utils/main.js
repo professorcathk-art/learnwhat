@@ -204,15 +204,16 @@ class LearnWhatApp {
     }
 
     createLearningPlan() {
-        const duration = parseInt(this.userData.duration);
-        const intensity = this.userData.intensity;
-        const materials = this.userData.materials;
+        // Provide defaults for missing data
+        const duration = parseInt(this.userData.duration) || 30; // Default to 30 days
+        const intensity = this.userData.intensity || 'moderate';
+        const materials = this.userData.materials || [];
         
         return {
-            topic: this.userData.topic,
-            description: this.userData.description,
-            level: this.userData.level,
-            purpose: this.userData.purpose,
+            topic: this.userData.topic || 'General Learning',
+            description: this.userData.description || '',
+            level: this.userData.level || 'beginner',
+            purpose: this.userData.purpose || 'personal-development',
             duration: duration,
             intensity: intensity,
             materials: materials,
@@ -2298,6 +2299,21 @@ Return only a JSON array with the selected resources, no additional text.`;
         localStorage.setItem('learnwhat-registered-users', JSON.stringify(existingUsers));
         
         localStorage.setItem('learnwhat-user', JSON.stringify(this.currentUser));
+        
+        // Debug: Log current state
+        console.log('🔍 Registration Debug:', {
+            userData: this.userData,
+            learningPlan: this.learningPlan,
+            hasDescription: !!(this.userData && this.userData.description)
+        });
+        
+        // Ensure we have a learning plan from the questionnaire data
+        if (!this.learningPlan && this.userData && this.userData.description) {
+            console.log('📝 Creating learning plan from questionnaire data...');
+            this.learningPlan = this.createLearningPlan();
+            console.log('✅ Learning plan created:', this.learningPlan);
+        }
+        
         localStorage.setItem('learnwhat-plan', JSON.stringify(this.learningPlan));
         
         // Save plan to user's plan collection
@@ -2986,12 +3002,15 @@ Return only a JSON array with the selected resources, no additional text.`;
     }
 
     savePlanToUserCollection() {
-        if (!this.learningPlan || !this.currentUser) return;
+        if (!this.learningPlan || !this.currentUser) {
+            console.warn('Cannot save plan: missing learningPlan or currentUser');
+            return;
+        }
         
         const plans = this.getUserPlans();
         const planToSave = {
             ...this.learningPlan,
-            dailyPlan: this.dailyPlan,
+            dailyPlan: this.dailyPlan || [],
             createdAt: new Date().toISOString(),
             id: Date.now().toString(),
             userId: this.currentUser.id
@@ -3000,6 +3019,8 @@ Return only a JSON array with the selected resources, no additional text.`;
         plans.push(planToSave);
         const userPlansKey = `learnwhat-user-plans-${this.currentUser.id}`;
         localStorage.setItem(userPlansKey, JSON.stringify(plans));
+        
+        console.log(`✅ Plan saved successfully for user ${this.currentUser.id}:`, planToSave);
         
         // Add to recent activity
         this.addRecentActivity(
