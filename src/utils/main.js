@@ -2606,8 +2606,43 @@ Return only a JSON array with the selected resources, no additional text.`;
     }
 
     getUserPlans() {
-        const savedPlans = localStorage.getItem('learnwhat-user-plans');
+        if (!this.currentUser) return [];
+        
+        const userPlansKey = `learnwhat-user-plans-${this.currentUser.id}`;
+        let savedPlans = localStorage.getItem(userPlansKey);
+        
+        if (!savedPlans) {
+            // Check for legacy plans and migrate them
+            this.migrateLegacyPlans();
+            savedPlans = localStorage.getItem(userPlansKey);
+        }
+        
         return savedPlans ? JSON.parse(savedPlans) : [];
+    }
+    
+    migrateLegacyPlans() {
+        if (!this.currentUser) return;
+        
+        const legacyPlans = localStorage.getItem('learnwhat-user-plans');
+        if (legacyPlans) {
+            try {
+                const plans = JSON.parse(legacyPlans);
+                // Associate legacy plans with current user
+                const migratedPlans = plans.map(plan => ({
+                    ...plan,
+                    userId: this.currentUser.id
+                }));
+                
+                const userPlansKey = `learnwhat-user-plans-${this.currentUser.id}`;
+                localStorage.setItem(userPlansKey, JSON.stringify(migratedPlans));
+                
+                // Remove legacy plans to avoid confusion
+                localStorage.removeItem('learnwhat-user-plans');
+                console.log(`Migrated ${migratedPlans.length} legacy plans for user ${this.currentUser.id}`);
+            } catch (e) {
+                console.error('Error migrating legacy plans:', e);
+            }
+        }
     }
 
     getTotalCompletedItems() {
@@ -2943,25 +2978,28 @@ Return only a JSON array with the selected resources, no additional text.`;
         if (confirm('Are you sure you want to delete this learning plan?')) {
             const plans = this.getUserPlans();
             plans.splice(planIndex, 1);
-            localStorage.setItem('learnwhat-user-plans', JSON.stringify(plans));
+            const userPlansKey = `learnwhat-user-plans-${this.currentUser.id}`;
+            localStorage.setItem(userPlansKey, JSON.stringify(plans));
             this.loadUserPlans();
             this.updateDashboardStats();
         }
     }
 
     savePlanToUserCollection() {
-        if (!this.learningPlan) return;
+        if (!this.learningPlan || !this.currentUser) return;
         
         const plans = this.getUserPlans();
         const planToSave = {
             ...this.learningPlan,
             dailyPlan: this.dailyPlan,
             createdAt: new Date().toISOString(),
-            id: Date.now().toString()
+            id: Date.now().toString(),
+            userId: this.currentUser.id
         };
         
         plans.push(planToSave);
-        localStorage.setItem('learnwhat-user-plans', JSON.stringify(plans));
+        const userPlansKey = `learnwhat-user-plans-${this.currentUser.id}`;
+        localStorage.setItem(userPlansKey, JSON.stringify(plans));
         
         // Add to recent activity
         this.addRecentActivity(
@@ -3222,8 +3260,10 @@ Return only a JSON array with the selected resources, no additional text.`;
 
         // Save to localStorage
         const plans = this.getUserPlans();
+        plan.userId = this.currentUser.id;
         plans.push(plan);
-        localStorage.setItem('learnwhat-user-plans', JSON.stringify(plans));
+        const userPlansKey = `learnwhat-user-plans-${this.currentUser.id}`;
+        localStorage.setItem(userPlansKey, JSON.stringify(plans));
 
         // Show success message and redirect to plans
         alert('Learning plan saved successfully!');
@@ -3244,7 +3284,8 @@ Return only a JSON array with the selected resources, no additional text.`;
                 currentPlan.progress = {};
             }
             currentPlan.progress[dayIndex] = completed;
-            localStorage.setItem('learnwhat-user-plans', JSON.stringify(plans));
+            const userPlansKey = `learnwhat-user-plans-${this.currentUser.id}`;
+            localStorage.setItem(userPlansKey, JSON.stringify(plans));
         }
     }
 }
