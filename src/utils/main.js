@@ -22,6 +22,7 @@ class LearnWhatApp {
         this.bindEvents();
         this.loadUserData();
         this.updateStepVisibility();
+        this.updateLearningPlanMask();
     }
 
     bindEvents() {
@@ -94,6 +95,10 @@ class LearnWhatApp {
             this.handleRegistration(e);
         });
 
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            this.handleLogin(e);
+        });
+
         // Login/Logout
         document.getElementById('loginBtn').addEventListener('click', () => {
             this.showLoginModal();
@@ -132,7 +137,8 @@ class LearnWhatApp {
 
     updateStep1Validation() {
         const nextBtn = document.getElementById('nextStep1');
-        nextBtn.disabled = !(this.userData.topic && this.userData.description);
+        // 只有描述是必需的，主題選擇是可選的
+        nextBtn.disabled = !this.userData.description;
     }
 
     updateStep2Validation() {
@@ -1758,7 +1764,7 @@ Return only a JSON array with the selected resources, no additional text.`;
                 url: activityType.url,
                 icon: activityType.icon,
                 day: currentDay,
-                completed: false,
+                    completed: false,
                 isRestDay: false
             });
             currentDay++;
@@ -1896,6 +1902,9 @@ Return only a JSON array with the selected resources, no additional text.`;
     }
 
     displayLearningTable(dailyPlan) {
+        // 加載保存的進度
+        this.loadProgress();
+        
         const tableBody = document.getElementById('learningTableBody');
         tableBody.innerHTML = '';
         
@@ -1953,7 +1962,7 @@ Return only a JSON array with the selected resources, no additional text.`;
         if (this.dailyPlan && this.dailyPlan[index]) {
             this.dailyPlan[index].completed = !this.dailyPlan[index].completed;
             
-            // Update the row appearance
+            // Update the row appearance in both tables
             const rows = document.querySelectorAll('#learningTableBody tr');
             if (rows[index]) {
                 if (this.dailyPlan[index].completed) {
@@ -1963,14 +1972,63 @@ Return only a JSON array with the selected resources, no additional text.`;
                 }
             }
             
+            // Also update portal table if it exists
+            const portalRows = document.querySelectorAll('#portalLearningTableBody tr');
+            if (portalRows[index]) {
+                if (this.dailyPlan[index].completed) {
+                    portalRows[index].classList.add('completed-row');
+                } else {
+                    portalRows[index].classList.remove('completed-row');
+                }
+            }
+            
             // Update progress bar
             this.updateProgressBar();
             
             // Update timeline
             this.displayTimeline();
             
-            // Save to localStorage
+            // Save progress to localStorage
+            this.saveProgress();
+        }
+    }
+
+    saveProgress() {
+        if (this.dailyPlan && this.currentUser) {
+            // 保存到用戶特定的進度數據
+            const userProgressKey = `learnwhat-progress-${this.currentUser.email}`;
+            localStorage.setItem(userProgressKey, JSON.stringify(this.dailyPlan));
+            
+            // 也更新學習計劃中的進度
+            if (this.learningPlan) {
+                this.learningPlan.dailyPlan = this.dailyPlan;
+                localStorage.setItem('learnwhat-plan', JSON.stringify(this.learningPlan));
+            }
+            
+            console.log('✅ 進度已保存');
+        }
+        
+        // 通用保存（向後兼容）
             localStorage.setItem('learnwhat-daily-plan', JSON.stringify(this.dailyPlan));
+        }
+
+    loadProgress() {
+        if (this.currentUser) {
+            const userProgressKey = `learnwhat-progress-${this.currentUser.email}`;
+            const savedProgress = localStorage.getItem(userProgressKey);
+            
+            if (savedProgress && this.dailyPlan) {
+                const progress = JSON.parse(savedProgress);
+                
+                // 合併保存的進度到當前計劃
+                this.dailyPlan.forEach((day, index) => {
+                    if (progress[index]) {
+                        day.completed = progress[index].completed;
+                    }
+                });
+                
+                console.log('✅ 進度已加載');
+            }
         }
     }
 
@@ -2124,6 +2182,15 @@ Return only a JSON array with the selected resources, no additional text.`;
 
     closeModal() {
         document.getElementById('registrationModal').classList.remove('active');
+        document.getElementById('loginModal').classList.remove('active');
+    }
+
+    showRegistrationModal() {
+        document.getElementById('registrationModal').classList.add('active');
+    }
+
+    showLoginModal() {
+        document.getElementById('loginModal').classList.add('active');
     }
 
     handleRegistration(e) {
@@ -2154,12 +2221,35 @@ Return only a JSON array with the selected resources, no additional text.`;
         this.showDashboard();
     }
 
+    handleLogin(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const email = formData.get('email');
+        const password = formData.get('password');
+        
+        // 簡單的登錄驗證（在實際應用中應該有更安全的驗證）
+        const savedUser = localStorage.getItem('learnwhat-user');
+        if (savedUser) {
+            const user = JSON.parse(savedUser);
+            if (user.email === email) {
+                this.currentUser = user;
+                localStorage.setItem('learnwhat-current-user', JSON.stringify(this.currentUser));
+                this.closeModal();
+                this.showDashboard();
+                return;
+            }
+        }
+        
+        alert('Invalid email or password. Please try again or sign up.');
+    }
+
     showDashboard() {
         document.querySelector('.main-container').style.display = 'none';
         document.getElementById('userPortal').classList.remove('hidden');
         
         document.getElementById('userName').textContent = this.currentUser.name;
         this.loadUserPortalData();
+        this.updateLearningPlanMask();
     }
 
     loadDashboardData() {
@@ -2168,6 +2258,18 @@ Return only a JSON array with the selected resources, no additional text.`;
             this.learningPlan = JSON.parse(savedPlan);
             this.displayLearningPlan();
             // this.loadCoaches(); // Hidden for MVP stage
+        }
+    }
+
+    updateLearningPlanMask() {
+        const mask = document.getElementById('learningPlanMask');
+        if (!mask) return;
+        
+        // 如果用戶已登錄，隱藏遮罩
+        if (this.currentUser) {
+            mask.style.display = 'none';
+        } else {
+            mask.style.display = 'flex';
         }
     }
 
@@ -2237,7 +2339,7 @@ Return only a JSON array with the selected resources, no additional text.`;
                                 `<div class="material-title">${material.title}</div>` :
                                 `<div class="material-info">
                                     <a href="${material.url}" target="_blank" class="material-link">
-                                        ${material.title}
+                                    ${material.title}
                                     </a>
                                     ${material.relevanceScore ? `<div class="relevance-score">Relevance: ${material.relevanceScore}/10</div>` : ''}
                                     ${material.learningOutcome ? `<div class="learning-outcome">Outcome: ${material.learningOutcome}</div>` : ''}
@@ -2337,20 +2439,29 @@ Return only a JSON array with the selected resources, no additional text.`;
 
     logout() {
         this.currentUser = null;
-        localStorage.removeItem('learnwhat-user');
+        localStorage.removeItem('learnwhat-current-user'); // 清除當前登錄狀態
         
         document.querySelector('.main-container').style.display = 'block';
         document.getElementById('userPortal').classList.add('hidden');
         
         this.currentStep = 1;
         this.updateStepVisibility();
+        this.updateLearningPlanMask(); // 更新遮罩狀態
     }
 
     loadUserData() {
+        // 首先檢查是否有當前登錄的用戶
+        const currentUser = localStorage.getItem('learnwhat-current-user');
+        if (currentUser) {
+            this.currentUser = JSON.parse(currentUser);
+            this.showDashboard();
+        } else {
+            // 如果沒有當前登錄用戶，檢查是否有保存的用戶數據
         const savedUser = localStorage.getItem('learnwhat-user');
         if (savedUser) {
             this.currentUser = JSON.parse(savedUser);
-            this.showDashboard();
+                // 不自動顯示dashboard，讓用戶手動登錄
+            }
         }
     }
 
@@ -2581,8 +2692,80 @@ Return only a JSON array with the selected resources, no additional text.`;
                 <div class="plan-timeline">
                     ${this.generateTimelineHTML(currentPlan)}
                 </div>
+                <div class="learning-plan-table">
+                    <div class="plan-header">
+                        <h3>Your Daily Learning Plan</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="learning-table" id="portalLearningTable">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Learning Material</th>
+                                    <th>Type</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portalLearningTableBody">
+                                <!-- Learning plan will be generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         `;
+        
+        // 顯示學習表格
+        if (this.dailyPlan) {
+            this.displayPortalLearningTable(this.dailyPlan);
+        }
+    }
+
+    displayPortalLearningTable(dailyPlan) {
+        const tableBody = document.getElementById('portalLearningTableBody');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = '';
+        
+        dailyPlan.forEach((material, index) => {
+            const row = document.createElement('tr');
+            row.className = material.completed ? 'completed-row' : '';
+            
+            // Create material cell content based on whether it's a rest day
+            let materialCellContent;
+            if (material.isRestDay) {
+                // Rest day - no link
+                materialCellContent = `
+                    <div class="material-title">${material.title}</div>
+                    ${material.description ? `<div class="material-description">${material.description}</div>` : ''}
+                `;
+            } else {
+                // Regular material - with link
+                materialCellContent = `
+                    <a href="${material.url}" target="_blank" class="material-link">
+                        <div class="material-title">${material.title}</div>
+                        ${material.description ? `<div class="material-description">${material.description}</div>` : ''}
+                    </a>
+                `;
+            }
+            
+            row.innerHTML = `
+                <td class="day-cell">${index + 1}</td>
+                <td class="material-cell">${materialCellContent}</td>
+                <td class="type-cell">${material.type}</td>
+                <td class="duration-cell">${material.duration}</td>
+                <td class="action-cell">
+                    <label class="checkbox-container">
+                        <input type="checkbox" ${material.completed ? 'checked' : ''} 
+                               onchange="app.toggleMaterialStatus(${index})">
+                        <span class="checkmark"></span>
+                    </label>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
     }
 
     generateTimelineHTML(plan) {
@@ -2638,17 +2821,14 @@ Return only a JSON array with the selected resources, no additional text.`;
             this.learningPlan = plan;
             this.dailyPlan = plan.dailyPlan;
             
-            // Show the learning plan in the main container
-            document.getElementById('userPortal').classList.add('hidden');
-            document.querySelector('.main-container').style.display = 'block';
+            // 加載保存的進度
+            this.loadProgress();
             
-            // Show back to portal button
-            document.getElementById('backToPortal').style.display = 'inline-block';
+            // 在門戶中顯示學習計劃，不回到主頁面
+            this.switchPortalSection('progress');
             
-            // Go to step 4 (learning plan preview)
-            this.currentStep = 4;
-            this.updateStepVisibility();
-            this.updatePlanPreview();
+            // 更新進度部分顯示當前計劃
+            this.loadProgressOverview();
         }
     }
 

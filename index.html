@@ -534,6 +534,25 @@
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <!-- Learning Plan Mask for non-logged in users -->
+                        <div id="learningPlanMask" class="learning-plan-mask">
+                            <div class="mask-content">
+                                <div class="mask-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <h3>Unlock Your Learning Plan</h3>
+                                <p>Sign up or log in to view your complete personalized learning plan and track your progress.</p>
+                                <div class="mask-actions">
+                                    <button class="btn-primary" onclick="showRegistrationModal()">
+                                        <i class="fas fa-user-plus"></i> Sign Up
+                                    </button>
+                                    <button class="btn-secondary" onclick="showLoginModal()">
+                                        <i class="fas fa-sign-in-alt"></i> Log In
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -573,6 +592,32 @@
                     </div>
                     <button type="submit" class="btn-primary">Create Account</button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Welcome Back</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Log In</button>
+                </form>
+                <div class="modal-footer">
+                    <p>Don't have an account? <a href="#" onclick="showRegistrationModal()">Sign up here</a></p>
+                </div>
             </div>
         </div>
     </div>
