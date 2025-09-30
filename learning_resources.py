@@ -227,6 +227,29 @@ class LearningResourcesDB:
             )
         return None
     
+    def get_contributor_by_email(self, email: str) -> Optional[Contributor]:
+        """根據郵箱獲取貢獻者"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM contributors WHERE email = ?', (email,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            return Contributor(
+                id=row[0],
+                name=row[1],
+                email=row[2],
+                expertise_areas=json.loads(row[3]) if row[3] else [],
+                organization=row[4] or "",
+                bio=row[5] or "",
+                is_verified=bool(row[6]),
+                created_at=row[7],
+                last_active=row[8]
+            )
+        return None
+    
     def add_learning_resource(self, resource: LearningResource) -> bool:
         """添加學習資源"""
         try:

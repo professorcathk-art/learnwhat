@@ -8,6 +8,7 @@ Contributor Management System
 import json
 import hashlib
 import secrets
+import sqlite3
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict
 from dataclasses import dataclass

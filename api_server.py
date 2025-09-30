@@ -19,7 +19,13 @@ from ai_integration import AIResourceRecommender, LearningPlanGenerator
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # 在生產環境中應該使用更安全的密鑰
-CORS(app)
+
+# Configure CORS to allow credentials from any origin
+CORS(app, 
+     origins=['*'],  # Allow all origins for development
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allow_headers=['Content-Type', 'Authorization'],
+     supports_credentials=True)
 
 # 初始化系統組件
 db = LearningResourcesDB()

@@ -3223,7 +3223,7 @@ Return only a JSON array with the selected resources, no additional text.`;
         // Save to localStorage
         const plans = this.getUserPlans();
         plans.push(plan);
-        localStorage.setItem('userPlans', JSON.stringify(plans));
+        localStorage.setItem('learnwhat-user-plans', JSON.stringify(plans));
 
         // Show success message and redirect to plans
         alert('Learning plan saved successfully!');
@@ -3244,7 +3244,7 @@ Return only a JSON array with the selected resources, no additional text.`;
                 currentPlan.progress = {};
             }
             currentPlan.progress[dayIndex] = completed;
-            localStorage.setItem('userPlans', JSON.stringify(plans));
+            localStorage.setItem('learnwhat-user-plans', JSON.stringify(plans));
         }
     }
 }
